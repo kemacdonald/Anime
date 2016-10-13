@@ -8,6 +8,13 @@ Source: CRAN
 Version: 1.60.0-2
 Hash: be2967bcff307e561d9ba17faf03205c
 
+Package: BayesFactor
+Source: CRAN
+Version: 0.9.12-2
+Hash: 13f479f5943866a5d7519e80ef0b7b9c
+Requires: Matrix, MatrixModels, Rcpp, RcppEigen, coda, gtools, mvtnorm,
+    pbapply, stringr
+
 Package: DBI
 Source: CRAN
 Version: 0.5-1
@@ -23,6 +30,12 @@ Source: CRAN
 Version: 1.2-7.1
 Hash: 44c7e8fe4ce50a044ec2e5196f6694cc
 Requires: lattice
+
+Package: MatrixModels
+Source: CRAN
+Version: 0.4-1
+Hash: 60a5c75e57aae4a0ce76cb7422939aaf
+Requires: Matrix
 
 Package: R6
 Source: CRAN
@@ -60,6 +73,11 @@ Source: CRAN
 Version: 1.0-6
 Hash: 67d0775189fd0041d95abca618c5c07e
 
+Package: bootstrap
+Source: CRAN
+Version: 2015.2
+Hash: 26472d3195523d7becddff64d13709fd
+
 Package: broom
 Source: CRAN
 Version: 0.4.1
@@ -71,6 +89,12 @@ Source: CRAN
 Version: 1.17.1
 Hash: 97cb6f6293cd18d17df77a6383cc6763
 Requires: bitops
+
+Package: coda
+Source: CRAN
+Version: 0.18-1
+Hash: 2c2850226efa6a8aaf9b02704ffd3682
+Requires: lattice
 
 Package: colorspace
 Source: CRAN
@@ -138,10 +162,21 @@ Source: CRAN
 Version: 0.15.0
 Hash: 92d5a9f3cba5e146b92a76dabbc29fbb
 
+Package: gridExtra
+Source: CRAN
+Version: 2.2.1
+Hash: 8f54b57d4b0598ed5b27e0eafe86a670
+Requires: gtable
+
 Package: gtable
 Source: CRAN
 Version: 0.2.0
 Hash: cd78381a9d3fea966ac39bd0daaf5554
+
+Package: gtools
+Source: CRAN
+Version: 3.5.0
+Hash: 471b2e2452dfb30fdc1dd6f1b567925a
 
 Package: haven
 Source: CRAN
@@ -171,10 +206,25 @@ Version: 1.2.1
 Hash: 7de1f8f760441881804af7c1ff324340
 Requires: R6, curl, jsonlite, mime, openssl
 
+Package: jpeg
+Source: CRAN
+Version: 0.1-8
+Hash: 189af3df9864c6aa8546033f08ba9358
+
 Package: jsonlite
 Source: CRAN
 Version: 1.1
 Hash: 86d4b85b84421a4815f1bb4872e30ef4
+
+Package: kmr
+Source: github
+Version: 0.0.0.9000
+Hash: 9df5408dbfad7b2c0b2ce138050ffa9f
+Requires: bootstrap, dplyr, ggplot2
+GithubRepo: kmr
+GithubUsername: kemacdonald
+GithubRef: master
+GithubSha1: b5a3c5e7859a5b9be43e483911a4642f4b859157
 
 Package: knitr
 Source: CRAN
@@ -273,6 +323,11 @@ Version: 0.4.3
 Hash: f96d896947fcaf9b6d0074002e9f4f9d
 Requires: colorspace
 
+Package: mvtnorm
+Source: CRAN
+Version: 1.0-5
+Hash: 55a3581188e15f13f5ba19c18e151ac2
+
 Package: nlme
 Source: CRAN
 Version: 3.1-128
@@ -293,6 +348,11 @@ Package: packrat
 Source: CRAN
 Version: 0.4.8-1
 Hash: 6ad605ba7b4b476d84be6632393f5765
+
+Package: pbapply
+Source: CRAN
+Version: 1.3-0
+Hash: 6ff0effdff99fe77f5309c0e20ecb0a9
 
 Package: plyr
 Source: CRAN
@@ -426,3 +486,9 @@ Package: yaml
 Source: CRAN
 Version: 2.1.13
 Hash: 4854ccabebc225e8a7309fb4a74980de
+
+Package: yarrr
+Source: CRAN
+Version: 0.0.9
+Hash: c4a53df25d323a9d0d619fcb86db921b
+Requires: BayesFactor, jpeg

@@ -1,0 +1,126 @@
+---
+title: "Anime visualization"
+author: "Kyle MacDonald"
+date: "October 13, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = T, message = F, warning = F)
+```
+
+```{r libraries, include=FALSE}
+library(tidyverse); library(lme4); library(langcog);
+library(devtools); library(lwl); library(magrittr)
+library(kmr); library(stringr); library(gridExtra)
+library(yarrr)
+```
+
+### Read data
+
+```{r}
+df <- read_csv("../data/summary_tables/anime_gvals.csv")
+theme_set(theme_bw())
+```
+
+Create variable to track whether target was novel or familiar.
+
+```{r}
+df %<>% 
+  mutate(target_type = ifelse(str_detect(Condition, pattern = "novel"), 
+                              "novel", "familiar"))
+```
+
+## Experiment 1
+
+```{r filter e1}
+e1.df <- filter(df, experiment == "experiment_1")
+```
+
+### Target looking over time
+
+```{r profile plot function, echo = F}
+profile_plot_function<- function(df, window_lower, window_upper, include_distractor = FALSE) {
+  
+  if (include_distractor) {
+    df.filt <- filter(df, Time.ms >= window_lower, Time.ms <= window_upper)
+  } else {
+    df.filt <- filter(df, Time.ms >= window_lower, Time.ms <= window_upper, value_cat == "Target")
+  }
+  
+  plot_familiar <- ggplot(aes(x = Time.ms, y = mean, color = Condition), 
+                 data = filter(df.filt, target_type == "familiar")) +
+    geom_line() +
+    scale_color_grey() +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    labs(y = "Prop. Target Looking", x = "Time (ms)") +
+    facet_wrap(~target_type) +
+    theme(legend.position = "top") +
+    ylim(0.4, 0.8)
+  
+  plot_novel <- ggplot(aes(x = Time.ms, y = mean, color = Condition), 
+                 data = filter(df.filt, target_type == "novel")) +
+    geom_line() +
+    scale_color_grey() +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    labs(y = "Prop. Target Looking", x = "Time (ms)") +
+    facet_wrap(~target_type) +
+    theme(legend.position = "top") +
+    ylim(0.4, 0.8)
+  
+  grid.arrange(plot_familiar, plot_novel, ncol = 2)
+}
+```
+
+```{r target looking e1, fig.width=10}
+analysis.window.lower <- 0; analysis.window.upper <- 3000
+profile_plot_function(e1.df, analysis.window.lower, analysis.window.upper, include_distractor = F)
+```
+
+### TODO: Onset contingency plot
+
+### Boxplot of target looking across conditions
+
+```{r}
+pirateplot(formula = mean ~ Condition,
+           data = filter(e1.df, value_cat == "Target", target_type == "familiar", Time.ms <= 1800),
+           pal = "black",
+           ylim = c(0.4, 0.8)) 
+```
+
+## Experiment 2
+
+```{r filter e2}
+e2.df <- filter(df, experiment == "experiment_2_retention")
+```
+
+### Target looking over time
+
+```{r target looking e2}
+analysis.window.lower <- 0; analysis.window.upper <- 3000
+df.filt.e2 <- filter(e2.df, Time.ms >= analysis.window.lower, Time.ms <= analysis.window.upper, value_cat == "Target")
+
+
+ggplot(aes(x = Time.ms, y = mean, color = Condition), 
+                 data = df.filt.e2) +
+    geom_line() +
+    scale_color_grey() +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    labs(y = "Prop. Target Looking", x = "Time (ms)") +
+    ylim(0.4, 0.8)
+
+```
+
+### TODO: Onset contingency plot
+
+### Boxplot of target looking across conditions
+
+```{r}
+pirateplot(formula = mean ~ Condition,
+           data = filter(e2.df, value_cat == "Target", Time.ms <= 1800),
+           pal = "black",
+           ylim = c(0.4, 0.8)) 
+```
+
+
