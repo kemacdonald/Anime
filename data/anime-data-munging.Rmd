@@ -1,0 +1,47 @@
+---
+title: "Anime data munge"
+author: "Kyle MacDonald"
+date: "October 12, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+library(tidyverse); library(lme4); library(langcog);
+library(devtools); library(lwl)
+```
+
+This script takes raw data files from the Anime project and converts them to tidy data files for analysis and visualization. The raw data is in the form of .csv files, which contain vocabulary measures (mCDI) and eye movement data (looking-while-listening task). The tidy data is two files: 
+
+  * a summary table with a vocab score and a mean looking behavior score for each participant
+  * a table with graph values for the visualization of looking behavior over time in the task
+
+### Read data
+
+We have two cdi files: one for each experiment.
+
+```{r read cdi}
+anime_cdi <- read_csv("data/raw_data/AniME.newCDI.csv")
+animoo_cdi <- read_csv("data/raw_data/AniMoo.CDI.new.csv")
+```
+
+We have three iCharts: Anime A, Anime B, Anime Retention
+
+```{r read iCharts}
+anime.a.ichart <- readiChart("data/raw_data/ANIME_A_iChart.txt")
+```
+
+### Merge data
+
+```{r cdi merge}
+```
+
+```{r ichart merge}
+
+```
+
+
+### Data cleaning and summarizing
+
+### Write tidy data
+
