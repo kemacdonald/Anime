@@ -402,15 +402,11 @@ Hash: c9a8d2349fe969cf519dd0ced9cc1414
 Requires: Rcpp, plyr, stringr
 
 Package: rmarkdown
-Source: github
-Version: 1.0.9013
-Hash: 0a967bcc3afb016b5f576593a946c328
+Source: CRAN
+Version: 1.1
+Hash: d0e9f583d85019c99a171b094979fcb3
 Requires: base64enc, caTools, evaluate, htmltools, jsonlite, knitr,
     tibble, yaml
-GithubRepo: rmarkdown
-GithubUsername: rstudio
-GithubRef: master
-GithubSha1: 5d05a39260121016249ea41bf728813a5ceead3f
 
 Package: rstudioapi
 Source: CRAN
@@ -489,6 +485,6 @@ Hash: 4854ccabebc225e8a7309fb4a74980de
 
 Package: yarrr
 Source: CRAN
-Version: 0.0.9
-Hash: c4a53df25d323a9d0d619fcb86db921b
+Version: 0.1.2
+Hash: 2d8e105df43ed454389daf4e5d4781ae
 Requires: BayesFactor, jpeg
