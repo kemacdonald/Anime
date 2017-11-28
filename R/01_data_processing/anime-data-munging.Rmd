@@ -1,0 +1,152 @@
+---
+title: "Anime data munge"
+author: "Kyle MacDonald"
+date: "October 12, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+```{r libraries, include=FALSE}
+library(tidyverse); library(langcog);
+library(lwl); library(magrittr); library(kmr)
+```
+
+This script takes raw data files from the Anime project and converts them to tidy data files for analysis and visualization. The raw data is in the form of .csv files, which contain vocabulary measures (mCDI) and eye movement data (looking-while-listening task). The tidy data is two files: 
+
+  * a summary table with a vocab score and a mean looking behavior score for each participant
+  * a table with graph values for the visualization of looking behavior over time in the task
+
+## Read data
+
+We have two cdi files: one for each experiment.
+
+```{r read cdi}
+anime_cdi <- read_csv("../../data/raw_data/AniME.newCDI.csv") %>% 
+  select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
+  mutate(experiment = "experiment_1")
+
+animoo_cdi <- read_csv("../../data/raw_data/AniMoo.CDI.new.csv") %>% 
+  select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
+  mutate(experiment = "experiment_2_retention")
+```
+
+We have three iCharts: Anime A, Anime B, Anime Retention
+
+```{r read iCharts}
+anime.a.ichart <- readiChart("../../data/raw_data/ANIME_A_iChart.txt") 
+anime.b.ichart <- readiChart("../../data/raw_data/ANIME_B_iChart.txt")
+anime.c.ichart <- readiChart("../../data/raw_data/ANIME_retention_iChart.txt")
+```
+
+## Data cleaning 
+
+Clean up the condition names.
+
+```{r clean condition names}
+# anime_a (names and lexicalized animal sound trials)
+anime.a.ichart$Condition <- gsub(anime.a.ichart$Condition, 
+                                 pattern = "P", 
+                                 replacement =  "") 
+
+anime.a.ichart$Condition <- recode(anime.a.ichart$Condition, 
+         vanilla = "name_fam_fam_familiar", sounds = "onomatopoeic_fam_fam_familiar",
+         NF = "name_nov_fam_disambiguation", FN = "name_fam_nov_familiar")
+
+# anime_b (vocalization trials)
+anime.b.ichart$Condition <- recode(anime.b.ichart$Condition, 
+         FF = "vocalization_fam_fam_familiar", FN = "vocalization_fam_nov_familiar",
+         NF = "vocalization_nov_fam_disambiguation")
+
+# anime_c (retention of names and animal sounds)
+anime.c.ichart$Condition <- recode(anime.c.ichart$Condition, 
+         FF = "vocalization_fam_fam_familiar", FN = "vocalization_fam_nov_familiar",
+         NF = "vocalization_nov_fam_disambiguation", NT = "vocalization_nov_nov_retention")
+```
+
+Remove weird "E" condition from anime.c dataframe.
+
+```{r}
+anime.c.ichart %<>% filter(Condition != "E")
+```
+
+Add variable to track experiment (experiment 2 has retention trials). To make merging easier, we select the same number of columns -- 0-6000ms -- for each experiment. 
+
+```{r track experiment}
+anime.a.ichart %<>% 
+  mutate(experiment = "experiment_1") %>%
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
+         Condition, Response, `0`:`6000`, experiment)
+  
+anime.b.ichart %<>% 
+  mutate(experiment = "experiment_1") %>% 
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
+         Condition, Response, `0`:`6000`, experiment)
+
+anime.c.ichart %<>% 
+  mutate(experiment = "experiment_2_retention") %>% 
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
+         Condition, Response, `0`:`6000`, experiment)
+```
+
+
+### Convert iCharts to long format
+
+```{r convert iCharts to long format}
+anime.a.long <- anime.a.ichart %>% 
+  gather(key = Time.ms, value = value, `0`:`6000`) %>% 
+  filter(value %in% c("0", "1", "0.5", ".", "-")) %>%
+  mutate(value = ifelse(value == "-", ".", value),
+         value_cat = factor(value, labels = c("Away", "Distractor", "Target")),
+         Time.ms_numeric = to.n(Time.ms))
+
+anime.b.long <- anime.b.ichart %>% 
+  gather(key = Time.ms, value = value, `0`:`6000`) %>% 
+  filter(value %in% c("0", "1", "0.5", ".", "-")) %>%
+  mutate(value = ifelse(value == "-", ".", value),
+         value_cat = factor(value, labels = c("Away", "Distractor", "Target")),
+         Time.ms_numeric = to.n(Time.ms))
+
+anime.c.long <- anime.c.ichart %>% 
+  gather(key = Time.ms, value = value, `0`:`6000`) %>% 
+  filter(value %in% c("0", "1", "0.5", ".", "-")) %>%
+  mutate(value = ifelse(value == "-", ".", value),
+         value_cat = factor(value, labels = c("Away", "Distractor", "Target")),
+         Time.ms_numeric = to.n(Time.ms))
+```
+
+## Merge 
+
+Eye movement data:
+
+```{r merge long iCharts}
+ichart.final <- bind_rows(anime.a.long, anime.b.long, anime.c.long)
+```
+
+CDI data:
+
+```{r cdi merge}
+cdi_df <- bind_rows(anime_cdi, animoo_cdi) %>% 
+  rename(Sub.Num = ParticipantId) %>% 
+  filter(duplicated(Sub.Num) == FALSE) # REMOVES ANY DUPLICATES
+```
+
+Spread out the condition information, so we only have one piece of information stored in each column.
+
+```{r}
+ichart.final %<>% 
+  separate(col = Condition, into = c("cue_type", "target_img_type", 
+                                     "distracter_img_type", "trial_type"))
+```
+
+### Write tidy data
+
+```{r write data}
+write_csv(ichart.final, "../../data/tidy_data/anime_tidy_ichart.csv")
+write_csv(cdi_df, "../../data/tidy_data/anime_tidy_cdi.csv")
+```
+
+
