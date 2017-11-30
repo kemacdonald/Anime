@@ -23,6 +23,8 @@ This script takes the tidy eye movement data from the Anime project and converts
 ```{r read data}
 ichart.df <- read_csv("../../data/tidy_data/anime_tidy_ichart.csv")
 cdi.df <- read_csv("../../data/tidy_data/anime_tidy_cdi.csv")
+
+cdi.df %<>% mutate(Sub.Num = as.character(Sub.Num))
 ```
 
 ## Filters
@@ -100,7 +102,6 @@ ms.ichart <- as.data.frame(xtabs(~ Sub.Num + Tr.Num + value_cat + Time.ms + cue_
 
 ```{r}
 ss_ichart <- ms.ichart %>% 
-  filter(to.n(Time.ms) >= 0, to.n(Time.ms) <= 4000) %>% 
   group_by(Sub.Num, Time.ms, cue_type, trial_type, value_cat, experiment) %>% 
   summarise(m_prop_looking = mean(proportion_looking, na.rm = T)) 
 
@@ -136,12 +137,68 @@ Merge participant looking behavior with CDI and demographic information.
 
 ```{r merge looking and cdi scores}
 ss.summary.final <- cdi.df %>% 
-  mutate(Sub.Num = as.character(Sub.Num)) %>% 
-  left_join(x = ss.cond.mean.looking, y = ., by = "Sub.Num")
+  left_join(x = ss.cond.mean.looking, y = ., by = c("Sub.Num", "experiment"))
 ```
 
 Write participant-level summary table to CSV.
 
 ```{r write ss summary table}
 write_csv(x = ss.summary.final, path = "../../data/summary_tables/anime_participant_level.csv")
+```
+
+## Compute graph values for OC plot
+
+We do the same computations but only for trials where participants started looking at the distracter image at the onset of the auditory cue. 
+
+```{r}
+includeAways <- FALSE ## Controls whether you want AWAYS included in computation
+
+if (includeAways) { 
+  include_vals <- c("0", "1", ".")
+} else {
+  include_vals <- c("0", "1")
+}
+
+ms_ichart_oc <- ichart.df %>% 
+  filter(value %in% include_vals, 
+         Response == "D") %>%  
+  group_by(Sub.Num, Tr.Num, Time.ms, cue_type, trial_type, experiment, value_cat) %>% 
+  dplyr::summarise(count = ifelse(n() == 0, 0, n())) %>% 
+  dplyr::summarise(sum_count = sum(count)) %>% 
+  ungroup() %>% 
+  mutate(Sub.Num = as.character(Sub.Num),
+         Tr.Num = as.character(Tr.Num))
+```
+
+```{r}
+ms_ichart_oc <- as.data.frame(xtabs(~ Sub.Num + Tr.Num + value_cat + Time.ms + cue_type + 
+                                   trial_type + experiment, 
+                                    data = filter(ichart.df, value %in% include_vals)),
+                           stringsAsFactors = F) %>% 
+  mutate(Time.ms = to.n(Time.ms)) %>% 
+  left_join(x = ms_ichart_oc, by = c("Sub.Num", "Tr.Num", "Time.ms", 
+                                  "cue_type", "trial_type", 
+                                  "experiment")) %>% 
+  mutate(proportion_looking = Freq / sum_count)
+```
+
+### Compute graph values for proportion looking at each 33ms timeslice
+
+```{r}
+ss_ichart_oc <- ms_ichart_oc %>% 
+  group_by(Sub.Num, Time.ms, cue_type, trial_type, value_cat, experiment) %>% 
+  summarise(m_prop_looking = mean(proportion_looking, na.rm = T)) 
+
+ms_ichart_oc <- ss_ichart_oc %>% 
+  filter(value_cat == "Target", Time.ms <= 1500) %>% 
+  group_by(Time.ms, cue_type, trial_type, experiment) %>% 
+  multi_boot_standard(column = "m_prop_looking", na.rm = T, nboot = 500)
+
+beepr::beep(sound = "fanfare")
+```
+
+Save graph values for visualization.
+
+```{r write graph values oc}
+write_csv(x = ms_ichart_oc, path = "../../data/summary_tables/anime_gvals_oc_plot.csv")
 ```

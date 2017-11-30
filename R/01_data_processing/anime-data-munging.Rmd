@@ -27,11 +27,11 @@ We have two cdi files: one for each experiment.
 ```{r read cdi}
 anime_cdi <- read_csv("../../data/raw_data/AniME.newCDI.csv") %>% 
   select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
-  mutate(experiment = "experiment_1")
+  mutate(experiment = "experiment_2_retention")
 
 animoo_cdi <- read_csv("../../data/raw_data/AniMoo.CDI.new.csv") %>% 
   select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
-  mutate(experiment = "experiment_2_retention")
+  mutate(experiment = "experiment_1")
 ```
 
 We have three iCharts: Anime A, Anime B, Anime Retention

@@ -7,13 +7,13 @@ output: html_document
 ```{r setup, include=FALSE}
 rm(list=ls())
 knitr::opts_chunk$set(echo = T, message = F, warning = F)
-theme_set(ggthemes::theme_few())
 ```
 
 ```{r libraries, include=FALSE}
 library(lme4); library(langcog); library(magrittr)
 library(kmr); library(stringr); library(gridExtra); 
 library(tidyverse)
+theme_set(ggthemes::theme_few())
 ```
 
 ### Read data
@@ -50,8 +50,9 @@ e1_df %>%
   labs(y = "Prop. Target Looking", x = "Time (ms)") +
   guides(color = F) + 
   ylim(0.4, 0.8) +
-  xlim(0, 3000) +
-  facet_wrap(~trial_type)
+  xlim(analysis.window.lower, analysis.window.upper + 500) +
+  facet_wrap(~trial_type) +
+  ggtitle("Experiment 1")
 ```
 
 ## Experiment 2
@@ -75,6 +76,7 @@ df_e2_filt %>%
   directlabels::geom_dl(aes(label = trial_type), method=list("last.qp")) +
   labs(y = "Prop. Target Looking", x = "Time (ms)") +
   guides(color = F) + 
-  ylim(0.4, 0.8) +
-  xlim(0, 3000) 
+  ylim(0.3, 0.8) +
+  xlim(analysis.window.lower, analysis.window.upper + 500) +
+  ggtitle("Experiment 2")
 ```
