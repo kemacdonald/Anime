@@ -1,0 +1,68 @@
+---
+title: "Anime OC Plot"
+author: "Kyle MacDonald"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = T, message = F, warning = F)
+```
+
+```{r libraries, include=FALSE}
+library(lme4); library(langcog); library(magrittr)
+library(kmr); library(stringr); library(gridExtra); 
+library(tidyverse)
+theme_set(ggthemes::theme_few())
+```
+
+### Read data
+
+```{r}
+d <- read_csv("../../data/03_summary_tables/anime_gvals_oc_plot.csv")
+```
+
+### Read data
+
+```{r}
+analysis.window.lower <- 0
+analysis.window.upper <- 1200
+
+d %<>% filter(Time.ms >= analysis.window.lower, Time.ms <= analysis.window.upper)
+```
+
+## Experiment 1
+
+```{r}
+breaks <- unique(d$Time.ms) %>% .[seq(1, length(.), 7)]
+
+d_plot <-  d %>% 
+  filter(experiment == "experiment_1", trial_type == "familiar") %>% 
+  mutate(cue_type = recode(cue_type, onomatopoeic = "onomatopoeic word",
+                           vocalization = "animal vocalization",
+                           name = "animal name"))
+
+e1_oc_plot <- d_plot %>% 
+  ggplot(aes(x = Time.ms, y = mean, color = cue_type)) +
+  geom_linerange(data = filter(d_plot, Time.ms %in% breaks), 
+                  aes(ymin = summary_ci_lower, ymax = summary_ci_upper),
+                 position = position_jitter(height = 0, width = 20),
+                 size = 0.8, alpha = 0.8) +
+  geom_line(size = 1.5) +
+  ylim(0, 0.9) +
+  xlim(analysis.window.lower, analysis.window.upper + 400) +
+  annotate("text", x = 150, y = 0.75, label = "DOG") +
+  annotate("text", x = 150, y = 0.65, label = "WOOF", color = "grey") +
+  annotate("text", x = 150, y = 0.55, label = "[barking]", color = "darkgrey") +
+  scale_color_grey() +
+  directlabels::geom_dl(aes(label = cue_type), method=list("last.points")) +
+  labs(y = "Prop. shifting to target", x = "Time (ms)") +
+  guides(color = F) 
+
+e1_oc_plot
+```
+
+```{r}
+ggsave(e1_oc_plot, filename = "../../paper/figs/oc_e1_new.png")
+```
+

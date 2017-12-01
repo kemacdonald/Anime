@@ -1,0 +1,67 @@
+---
+title: "Anime Box Plots"
+author: "Kyle MacDonald"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+rm(list=ls())
+knitr::opts_chunk$set(echo = T, message = F, warning = F)
+```
+
+```{r libraries, include=FALSE}
+library(lme4); library(langcog); library(magrittr)
+library(kmr); library(stringr); library(gridExtra); 
+library(tidyverse)
+theme_set(ggthemes::theme_few())
+```
+
+### Read data
+
+```{r}
+d <- read_csv("../../data/03_summary_tables/anime_participant_level.csv")
+```
+
+### Experiment 1
+
+```{r}
+e1 <- d %>% 
+  filter(experiment == "experiment_1", value_cat == "Target") %>% 
+  mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1), 
+         trial_type = recode(trial_type, disambiguation = "novel"),
+         cue_type = recode(cue_type, onomatopoeic = "onomatopoeic\nword")) %>% 
+  ggplot(aes(x = cue_type, y = ss_prop_looking)) +
+  geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
+  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  facet_wrap(~trial_type, scales = "free_x") +
+  labs(x = "Cue Type", y = "Prop. Target Looking") +
+  lims(y = c(0, 1)) 
+
+e1
+```
+
+```{r}
+ggsave(e1, filename = "../../paper/figs/prop_look_e1_new.png")
+```
+
+### Experiment 2
+
+```{r}
+e2 <- d %>% 
+  filter(experiment == "experiment_2_retention", value_cat == "Target") %>% 
+  mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1)) %>% 
+  ggplot(aes(x = trial_type, y = ss_prop_looking)) +
+  geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
+  scale_x_discrete(expand = c(0,0.5)) +
+  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  labs(x = "Trial Type", y = "Prop. Target Looking") +
+  lims(y = c(0, 1)) 
+
+e2
+```
+
+```{r}
+ggsave(e2, filename = "../../paper/figs/prop_look_e2_new.png")
+```

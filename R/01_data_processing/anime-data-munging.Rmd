@@ -25,11 +25,11 @@ This script takes raw data files from the Anime project and converts them to tid
 We have two cdi files: one for each experiment.
 
 ```{r read cdi}
-anime_cdi <- read_csv("../../data/raw_data/AniME.newCDI.csv") %>% 
+anime_cdi <- read_csv("../../data/01_raw_data/AniME.newCDI.csv") %>% 
   select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
   mutate(experiment = "experiment_2_retention")
 
-animoo_cdi <- read_csv("../../data/raw_data/AniMoo.CDI.new.csv") %>% 
+animoo_cdi <- read_csv("../../data/01_raw_data/AniMoo.CDI.new.csv") %>% 
   select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
   mutate(experiment = "experiment_1")
 ```
@@ -37,9 +37,9 @@ animoo_cdi <- read_csv("../../data/raw_data/AniMoo.CDI.new.csv") %>%
 We have three iCharts: Anime A, Anime B, Anime Retention
 
 ```{r read iCharts}
-anime.a.ichart <- readiChart("../../data/raw_data/ANIME_A_iChart.txt") 
-anime.b.ichart <- readiChart("../../data/raw_data/ANIME_B_iChart.txt")
-anime.c.ichart <- readiChart("../../data/raw_data/ANIME_retention_iChart.txt")
+anime.a.ichart <- readiChart("../../01_data/raw_data/ANIME_A_iChart.txt") 
+anime.b.ichart <- readiChart("../../01_data/raw_data/ANIME_B_iChart.txt")
+anime.c.ichart <- readiChart("../../01_data/raw_data/ANIME_retention_iChart.txt")
 ```
 
 ## Data cleaning 
@@ -79,17 +79,17 @@ Add variable to track experiment (experiment 2 has retention trials). To make me
 anime.a.ichart %<>% 
   mutate(experiment = "experiment_1") %>%
   select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
-         Condition, Response, `0`:`6000`, experiment)
+         Condition, Response, RT, `0`:`6000`, experiment)
   
 anime.b.ichart %<>% 
   mutate(experiment = "experiment_1") %>% 
   select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
-         Condition, Response, `0`:`6000`, experiment)
+         Condition, Response, RT, `0`:`6000`, experiment)
 
 anime.c.ichart %<>% 
   mutate(experiment = "experiment_2_retention") %>% 
   select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
-         Condition, Response, `0`:`6000`, experiment)
+         Condition, Response, RT, `0`:`6000`, experiment)
 ```
 
 
@@ -145,8 +145,8 @@ ichart.final %<>%
 ### Write tidy data
 
 ```{r write data}
-write_csv(ichart.final, "../../data/tidy_data/anime_tidy_ichart.csv")
-write_csv(cdi_df, "../../data/tidy_data/anime_tidy_cdi.csv")
+write_csv(ichart.final, "../../data/02_tidy_data/anime_tidy_ichart.csv")
+write_csv(cdi_df, "../../data/02_tidy_data/anime_tidy_cdi.csv")
 ```
 
 
