@@ -10,8 +10,9 @@ knitr::opts_chunk$set(echo = T, message = F, warning = F)
 ```
 
 ```{r libraries, include=FALSE}
-library(lme4); library(langcog); library(magrittr)
-library(kmr); library(stringr); library(gridExtra); 
+source("../helper_functions/libraries_v_3.3.R")
+library(magrittr)
+library(kmr); library(stringr); library(cowplot); 
 library(tidyverse)
 theme_set(ggthemes::theme_few())
 ```
@@ -20,48 +21,58 @@ theme_set(ggthemes::theme_few())
 
 ```{r}
 d <- read_csv("../../data/03_summary_tables/anime_participant_level.csv")
+model_plots <- readRDS("../../data/03_summary_tables/anime-posterior-plots.rds")
 ```
 
 ### Experiment 1
 
 ```{r}
 e1 <- d %>% 
-  filter(experiment == "experiment_1", value_cat == "Target") %>% 
+  filter(experiment == "e1") %>% 
   mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1), 
          trial_type = recode(trial_type, disambiguation = "novel"),
          cue_type = recode(cue_type, onomatopoeic = "onomatopoeic\nword")) %>% 
   ggplot(aes(x = cue_type, y = ss_prop_looking)) +
-  geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
+  #geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
+  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey40") + 
   geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
-  facet_wrap(~trial_type, scales = "free_x") +
+  facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
   labs(x = "Cue Type", y = "Prop. Target Looking") +
   lims(y = c(0, 1)) 
 
-e1
 ```
 
 ```{r}
-ggsave(e1, filename = "../../paper/figs/prop_look_e1_new.png")
+e1_acc_final_plot <- plot_grid(e1, model_plots$acc_e1, rel_widths = c(1, 1.2), labels = c("a", "b"))
+e1_acc_final_plot
+```
+
+```{r}
+ggsave(e1_acc_final_plot, filename = "../../paper/figs/prop_look_e1_new.png")
 ```
 
 ### Experiment 2
 
 ```{r}
 e2 <- d %>% 
-  filter(experiment == "experiment_2_retention", value_cat == "Target") %>% 
+  filter(experiment == "e2") %>% 
   mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1)) %>% 
   ggplot(aes(x = trial_type, y = ss_prop_looking)) +
-  geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
+  #geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
+  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.3, size = 1, color = "grey40") + 
   scale_x_discrete(expand = c(0,0.5)) +
   geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
   labs(x = "Trial Type", y = "Prop. Target Looking") +
   lims(y = c(0, 1)) 
-
-e2
 ```
 
 ```{r}
-ggsave(e2, filename = "../../paper/figs/prop_look_e2_new.png")
+e2_acc_final_plot <- plot_grid(e2, model_plots$acc_e2, rel_widths = c(1.2, 1), labels = c("a", "b"))
+e2_acc_final_plot
+```
+
+```{r}
+ggsave(e2_acc_final_plot, filename = "../../paper/figs/prop_look_e2_new.png")
 ```

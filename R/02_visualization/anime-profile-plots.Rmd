@@ -34,7 +34,7 @@ df %<>% filter(Time.ms >= analysis.window.lower, Time.ms <= analysis.window.uppe
 ## Experiment 1
 
 ```{r filter e1}
-e1_df <- filter(df, experiment == "experiment_1")
+e1_df <- filter(df, experiment == "e1")
 ```
 
 ### Target looking over time
@@ -58,7 +58,7 @@ e1_df %>%
 ## Experiment 2
 
 ```{r filter e2}
-e2_df <- filter(df, experiment == "experiment_2_retention")
+e2_df <- filter(df, experiment == "e2")
 ```
 
 ### Target looking over time

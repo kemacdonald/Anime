@@ -20,7 +20,6 @@ read_path <- "../../data/02_tidy_data/"
 write_path <- "../../data/03_summary_tables/"
 ```
 
-
 This script takes the tidy eye movement data from the Anime project and converts it to several summary data files: 
 
   * graph values: proportion looking for each 33ms time slice
@@ -33,33 +32,6 @@ ichart.df %<>% mutate(Sub.Num = as.character(Sub.Num),
 
 cdi.df <- read_csv(paste0(read_path, "anime_tidy_cdi.csv"))
 cdi.df %<>% mutate(Sub.Num = as.character(Sub.Num))
-```
-
-## Filters
-
-Get number of prescreened out trials for each participant and compute how many trials are left for each after prescreening.
-
-```{r number of good trials}
-ss_trials <- ichart.df %>% 
-  select(Sub.Num, Prescreen.Notes, Tr.Num) %>% 
-  unique() %>% 
-  group_by(Sub.Num) %>% 
-  dplyr::summarise(num_trials_before_ps = n())
-
-ss_trials <- ichart.df %>% 
-  select(Sub.Num, Prescreen.Notes, Tr.Num) %>% 
-  unique() %>% 
-  group_by(Sub.Num) %>% 
-  filter(Prescreen.Notes != "") %>% 
-  dplyr::summarise(num_prescreened = n()) %>% 
-  left_join(., ss_trials, by = "Sub.Num") %>% 
-  mutate(num_trials_final = num_trials_before_ps - num_prescreened)
-```
-
-Filter out prescreened trials.
-
-```{r filter prescreened}
-ichart.df %<>% filter(is.na(Prescreen.Notes) == TRUE)
 ```
 
 ### Compute proportion looking to Target, Distractor, and Away 
@@ -86,40 +58,32 @@ if (includeAways) {
   include_vals <- c("0", "1")
 }
 
-trial_level_df <- ichart.df %>% 
+graph_values <- ichart.df %>% 
   filter(value %in% include_vals) %>%  
-  group_by(Sub.Num, Tr.Num, Time.ms, cue_type, trial_type, experiment, value_cat) %>% 
+  group_by(Time.ms, cue_type, trial_type, experiment, value_cat) %>% 
   dplyr::summarise(count = ifelse(n() == 0, 0, n())) %>% 
-  dplyr::summarise(sum_count = sum(count)) %>% 
-  ungroup() %>% 
-  mutate(Sub.Num = as.character(Sub.Num),
-         Tr.Num = as.character(Tr.Num))
+  dplyr::summarise(sum_count = sum(count))
 ```
 
 Get prop looking at each timeslice
 
 ```{r}
-trial_level_df  <- as.data.frame(xtabs(~ Sub.Num + Tr.Num + value_cat + Time.ms + cue_type + 
-                                   trial_type + experiment, 
+graph_values <- as.data.frame(xtabs(~ value_cat + Time.ms + cue_type + trial_type + experiment, 
                                     data = filter(ichart.df, value %in% include_vals)),
                            stringsAsFactors = F) %>% 
   mutate(Time.ms = to.n(Time.ms)) %>% 
-  left_join(x = trial_level_df, by = c("Sub.Num", "Tr.Num", "Time.ms", 
+  left_join(x = graph_values, by = c("Time.ms", 
                                   "cue_type", "trial_type", 
-                                  "experiment")) %>% 
-  mutate(proportion_looking = Freq / sum_count)
+                                  "experiment")) 
 ```
 
 ### Compute graph values for proportion looking at each 33ms timeslice
 
 ```{r}
-ss_ichart <- trial_level_df %>% 
-  group_by(Sub.Num, Time.ms, cue_type, trial_type, value_cat, experiment) %>% 
-  summarise(m_prop_looking = mean(proportion_looking, na.rm = T)) 
-
-graph_values <- ss_ichart %>% 
+graph_values %<>% 
+  mutate(prop_looking = Freq / sum_count) %>% 
   group_by(Time.ms, cue_type, trial_type, value_cat, experiment) %>% 
-  summarise(m_prop_looking = mean(m_prop_looking, na.rm = T))
+  summarise(m_prop_looking = mean(prop_looking, na.rm = T)) 
 ```
 
 Write graph values to CSV (note that these are collapsing across participants and trials).
@@ -132,13 +96,58 @@ write_csv(x = graph_values, path = paste0(write_path, "anime_gvals.csv"))
 
 ```{r}
 rts <- ichart.df %>% 
-  select(Sub.Num, Tr.Num, RT, Response) %>% 
+  select(Sub.Num, Tr.Num, RT, Response, trial_type, cue_type, target_img_type, 
+         distracter_img_type, clean_target_img, GoodFirstGap, GoodRT, GoodLongestGap, 
+         experiment) %>% 
   unique()
+```
 
-trial_summary <- trial_level_df %>% 
+Note the key difference in this computation is that we are collapsing proportion looking over the analysis window, so we remove Time.ms from the xtabs function.
+
+```{r}
+includeAways <- F ## Controls whether you want AWAYS included in computation
+
+if (includeAways) { 
+  include_vals <- c("0", "1", ".")
+} else {
+  include_vals <- c("0", "1")
+}
+
+window_lower <- 0
+window_upper <- 3000
+```
+
+
+```{r}
+trial_level_summary <- ichart.df %>% 
+  filter(value %in% include_vals,
+         Time.ms_numeric >= window_lower, Time.ms_numeric <= window_upper) %>%  
+  group_by(Sub.Num, Tr.Num, cue_type, trial_type, experiment, value_cat) %>% 
+  dplyr::summarise(count = ifelse(n() == 0, 0, n())) %>% 
+  dplyr::summarise(sum_count = sum(count)) %>% 
+  ungroup() %>% 
+  mutate(Sub.Num = as.character(Sub.Num),
+         Tr.Num = as.character(Tr.Num))
+
+trial_level_summary <- as.data.frame(xtabs(~ Sub.Num + Tr.Num + value_cat  + cue_type + 
+                                   trial_type + experiment, 
+                                    data = filter(ichart.df, value %in% include_vals,
+                                                  Time.ms_numeric >= window_lower, 
+                                                  Time.ms_numeric <= window_upper)),
+                           stringsAsFactors = F) %>% 
+  left_join(x = trial_level_summary, by = c("Sub.Num", "Tr.Num", 
+                                  "cue_type", "trial_type", 
+                                  "experiment")) %>% 
+  mutate(proportion_looking = Freq / sum_count)
+```
+
+Next we get the mean accuracy for each trial.
+
+```{r}
+trial_level_summary %<>% 
   group_by(Sub.Num, Tr.Num, cue_type, trial_type, value_cat, experiment) %>% 
   summarise(m_prop_looking = mean(proportion_looking, na.rm = T)) %>% 
-  left_join(., rts, by = c("Sub.Num", "Tr.Num")) %>% 
+  left_join(., rts, by = c("Sub.Num", "Tr.Num", "experiment", "trial_type", "cue_type")) %>% 
   filter(value_cat == "Target") %>% 
   ungroup() %>% 
   select(-value_cat) %>% 
@@ -149,7 +158,8 @@ Merge participant looking behavior with CDI and demographic information.
 
 ```{r merge looking and cdi scores}
 trial_summary_final <- cdi.df %>% 
-  left_join(x = trial_summary, y = ., by = c("Sub.Num", "experiment"))
+  left_join(x = trial_level_summary, y = ., 
+            by = c("Sub.Num", "experiment"))
 ```
 
 Write trial-level data to CSV.
@@ -163,9 +173,8 @@ write_csv(trial_summary_final, path = paste0(write_path, "anime_trial_level.csv"
 This collapses across the entire analysis window and gives you a target looking score for each trial for each participant.
 
 ```{r compute mean looking}
-ss.cond.mean.looking <- ss_ichart %>% 
-  filter(to.n(Time.ms) >= 300, to.n(Time.ms) <= 4000) %>% 
-  group_by(Sub.Num, value_cat, cue_type, trial_type, experiment) %>% 
+ss.cond.mean.looking <- trial_summary_final %>% 
+  group_by(Sub.Num, cue_type, trial_type, experiment) %>% 
   summarise(ss_prop_looking = mean(m_prop_looking, na.rm = T)) 
 ```
 

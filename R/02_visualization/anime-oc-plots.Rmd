@@ -10,9 +10,7 @@ knitr::opts_chunk$set(echo = T, message = F, warning = F)
 ```
 
 ```{r libraries, include=FALSE}
-library(lme4); library(langcog); library(magrittr)
-library(kmr); library(stringr); library(gridExtra); 
-library(tidyverse)
+library(magrittr); library(stringr); library(cowplot); library(tidyverse)
 theme_set(ggthemes::theme_few())
 ```
 
@@ -20,6 +18,7 @@ theme_set(ggthemes::theme_few())
 
 ```{r}
 d <- read_csv("../../data/03_summary_tables/anime_gvals_oc_plot.csv")
+model_plots <- readRDS("../../data/03_summary_tables/anime-posterior-plots.rds")
 ```
 
 ### Read data
@@ -37,7 +36,7 @@ d %<>% filter(Time.ms >= analysis.window.lower, Time.ms <= analysis.window.upper
 breaks <- unique(d$Time.ms) %>% .[seq(1, length(.), 7)]
 
 d_plot <-  d %>% 
-  filter(experiment == "experiment_1", trial_type == "familiar") %>% 
+  filter(experiment == "e1", trial_type == "familiar") %>% 
   mutate(cue_type = recode(cue_type, onomatopoeic = "onomatopoeic word",
                            vocalization = "animal vocalization",
                            name = "animal name"))
@@ -50,7 +49,7 @@ e1_oc_plot <- d_plot %>%
                  size = 0.8, alpha = 0.8) +
   geom_line(size = 1.5) +
   ylim(0, 0.9) +
-  xlim(analysis.window.lower, analysis.window.upper + 400) +
+  xlim(analysis.window.lower, analysis.window.upper + 600) +
   annotate("text", x = 150, y = 0.75, label = "DOG") +
   annotate("text", x = 150, y = 0.65, label = "WOOF", color = "grey") +
   annotate("text", x = 150, y = 0.55, label = "[barking]", color = "darkgrey") +
@@ -58,11 +57,14 @@ e1_oc_plot <- d_plot %>%
   directlabels::geom_dl(aes(label = cue_type), method=list("last.points")) +
   labs(y = "Prop. shifting to target", x = "Time (ms)") +
   guides(color = F) 
-
-e1_oc_plot
 ```
 
 ```{r}
-ggsave(e1_oc_plot, filename = "../../paper/figs/oc_e1_new.png")
+e1_oc_plot_final <- plot_grid(e1_oc_plot, model_plots$rt_e1, rel_widths = c(1.5, 1), labels = c("a", "b"))
+e1_oc_plot_final
+```
+
+```{r}
+ggsave(e1_oc_plot_final, filename = "../../paper/figs/oc_e1_new.png", width = 9, height = 3)
 ```
 

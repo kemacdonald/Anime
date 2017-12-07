@@ -1,0 +1,27 @@
+[1] "First GAP"
+[1] "Longest First Gap =  15"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+  1.000   3.000   4.000   6.297   5.000  70.000     307 
+[1] "Longest GAP"
+[1] "Longest Gap =  15"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  0.000   0.000   0.000   5.175   0.000  70.000 
+[1] "0 quantile of RTs (D) = 33"
+[1] "0 quantile of RTs (T) = 0"
+[1] "RT D Trials (filtering based on these statistics)"
+[1] "Longest RT D trials:  2200"
+[1] "Shortest RT D trials:  33"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+   33.0   400.0   667.0   793.6  1100.0  2300.0      92 
+[1] "RT T Trials"
+[1] "Longest RT T trials:  2200"
+[1] "Shortest RT T trials:  0"
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+      0       0     367     618    1133    2400     215 
+[1] "Trials Rejected"
+[1] ""
+[1] "First Gap = 912 out of 999"
+[1] ""
+[1] "RT = 797 out of 999"
+[1] ""
+[1] "Longest Gap = 1099 out of 1306"

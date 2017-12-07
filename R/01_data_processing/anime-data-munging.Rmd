@@ -11,8 +11,9 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
 ```{r libraries, include=FALSE}
-library(tidyverse); library(langcog);
-library(lwl); library(magrittr); library(kmr)
+source("../helper_functions/libraries_v_3.3.R")
+library(langcog);library(lwl); library(magrittr); library(kmr)
+library(tidyverse)
 ```
 
 This script takes raw data files from the Anime project and converts them to tidy data files for analysis and visualization. The raw data is in the form of .csv files, which contain vocabulary measures (mCDI) and eye movement data (looking-while-listening task). The tidy data is two files: 
@@ -27,19 +28,19 @@ We have two cdi files: one for each experiment.
 ```{r read cdi}
 anime_cdi <- read_csv("../../data/01_raw_data/AniME.newCDI.csv") %>% 
   select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
-  mutate(experiment = "experiment_2_retention")
+  mutate(experiment = "e2")
 
 animoo_cdi <- read_csv("../../data/01_raw_data/AniMoo.CDI.new.csv") %>% 
   select(ParticipantId, Gender, CDIAge, VOCAB, ANIMALS, SOUND) %>% 
-  mutate(experiment = "experiment_1")
+  mutate(experiment = "e1")
 ```
 
 We have three iCharts: Anime A, Anime B, Anime Retention
 
 ```{r read iCharts}
-anime.a.ichart <- readiChart("../../01_data/raw_data/ANIME_A_iChart.txt") 
-anime.b.ichart <- readiChart("../../01_data/raw_data/ANIME_B_iChart.txt")
-anime.c.ichart <- readiChart("../../01_data/raw_data/ANIME_retention_iChart.txt")
+anime.a.ichart <- readiChart("../../data/01_raw_data/ANIME_A_iChart.txt") 
+anime.b.ichart <- readiChart("../../data/01_raw_data/ANIME_B_iChart.txt")
+anime.c.ichart <- readiChart("../../data/01_raw_data/ANIME_retention_iChart.txt")
 ```
 
 ## Data cleaning 
@@ -77,40 +78,59 @@ Add variable to track experiment (experiment 2 has retention trials). To make me
 
 ```{r track experiment}
 anime.a.ichart %<>% 
-  mutate(experiment = "experiment_1") %>%
-  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
+  mutate(experiment = "e1") %>%
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image,
          Condition, Response, RT, `0`:`6000`, experiment)
   
 anime.b.ichart %<>% 
-  mutate(experiment = "experiment_1") %>% 
-  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
+  mutate(experiment = "e1") %>% 
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image,
          Condition, Response, RT, `0`:`6000`, experiment)
 
-anime.c.ichart %<>% 
-  mutate(experiment = "experiment_2_retention") %>% 
-  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, 
+anime.c.ichart %<>%  
+  mutate(experiment = "e2") %>% 
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image,
          Condition, Response, RT, `0`:`6000`, experiment)
 ```
 
+Merge iCharts for analysis.
 
-### Convert iCharts to long format
+```{r merge iCharts}
+ichart.analysis <- bind_rows(anime.a.ichart, anime.b.ichart, anime.c.ichart)
+```
 
-```{r convert iCharts to long format}
-anime.a.long <- anime.a.ichart %>% 
-  gather(key = Time.ms, value = value, `0`:`6000`) %>% 
-  filter(value %in% c("0", "1", "0.5", ".", "-")) %>%
-  mutate(value = ifelse(value == "-", ".", value),
-         value_cat = factor(value, labels = c("Away", "Distractor", "Target")),
-         Time.ms_numeric = to.n(Time.ms))
+Clean up target.image variable, so we can model item as a random effect. 
 
-anime.b.long <- anime.b.ichart %>% 
-  gather(key = Time.ms, value = value, `0`:`6000`) %>% 
-  filter(value %in% c("0", "1", "0.5", ".", "-")) %>%
-  mutate(value = ifelse(value == "-", ".", value),
-         value_cat = factor(value, labels = c("Away", "Distractor", "Target")),
-         Time.ms_numeric = to.n(Time.ms))
+```{r}
+targets <- c("horse", "sheep", "cow", "dog", "tapir", "aardvark", "capybara", "pangolin")
 
-anime.c.long <- anime.c.ichart %>% 
+make_clean_target <- function (target_image, targets) {
+  target_img_clean <- targets[str_detect(target_image, targets)]
+  return(target_img_clean)
+}
+
+ichart.analysis$clean_target_img <- unlist(sapply(ichart.analysis$Target.Image, 
+                                         function (x) make_clean_target(x, targets)))
+```
+
+### Compute statistics
+
+```{r}
+# define onset and reject prescreen
+ichart.analysis <- defineOnset(ichart.analysis[ichart.analysis$Prescreen.Notes == "",], 
+                               critonset=0, includeAways=TRUE)
+
+# compute RT and gaps
+ichart.analysis <- computeStatistics(ichart.analysis, startWindow=0, endWindow=2500)
+
+# reject trials with extreme RT and gaps
+ichart.analysis <- filteriChart(ichart.analysis, minRT=0, maxRT=2200, maxfirstgap=15, maxlonggap=15)
+```
+
+### Convert iChart to long format 
+
+```{r}
+ichart.analysis.long <- ichart.analysis %>% 
   gather(key = Time.ms, value = value, `0`:`6000`) %>% 
   filter(value %in% c("0", "1", "0.5", ".", "-")) %>%
   mutate(value = ifelse(value == "-", ".", value),
@@ -118,26 +138,18 @@ anime.c.long <- anime.c.ichart %>%
          Time.ms_numeric = to.n(Time.ms))
 ```
 
-## Merge 
-
-Eye movement data:
-
-```{r merge long iCharts}
-ichart.final <- bind_rows(anime.a.long, anime.b.long, anime.c.long)
-```
-
-CDI data:
+Merge CDI data.
 
 ```{r cdi merge}
 cdi_df <- bind_rows(anime_cdi, animoo_cdi) %>% 
-  rename(Sub.Num = ParticipantId) %>% 
+  dplyr::rename(Sub.Num = ParticipantId) %>% 
   filter(duplicated(Sub.Num) == FALSE) # REMOVES ANY DUPLICATES
 ```
 
 Spread out the condition information, so we only have one piece of information stored in each column.
 
 ```{r}
-ichart.final %<>% 
+ichart.analysis.long %<>% 
   separate(col = Condition, into = c("cue_type", "target_img_type", 
                                      "distracter_img_type", "trial_type"))
 ```
@@ -145,8 +157,6 @@ ichart.final %<>%
 ### Write tidy data
 
 ```{r write data}
-write_csv(ichart.final, "../../data/02_tidy_data/anime_tidy_ichart.csv")
+write_csv(ichart.analysis.long, "../../data/02_tidy_data/anime_tidy_ichart.csv")
 write_csv(cdi_df, "../../data/02_tidy_data/anime_tidy_cdi.csv")
 ```
-
-

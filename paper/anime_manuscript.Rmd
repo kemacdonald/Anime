@@ -46,8 +46,9 @@ library("papaja"); library(knitr); library(png); library(tidyverse)
 ```
 
 ```{r}
-d <- read_csv(file = "../data/summary_tables/anime_trial_level.csv")
+d <- read_csv(file = "../data/03_summary_tables/anime_trial_level.csv")
 ```
+
 
 # Introduction
 
@@ -130,9 +131,13 @@ Participants' eye movements were video-recorded and coded with a precision of 33
 
 Our first question is whether a familiar animal name, onomatopoeic word, and animal vocalization is a particularly effective cue in guiding children's attention to an animal in their environment. To begin exploring this question, Figure 2 shows children's looking behavior on the LWL procedure (Fernald et al., 1998). In order to capture children's speed of processing, we only show children's responses on trials in which they start looking at the wrong animal. From sound onset onward, we show the mean proportion of trials in which children were looking at the correct picture, every 33ms, with different lines representing children's responses on Name trials (black), Onomatopoeic-word trials (dark grey), and Vocalization trials (light grey). The y-axis shows the mean proportion of trials on which children are looking at the correct animal. The x-axis represents time from sound onset in milliseconds. As can be seen in Figure 1, at 750ms from sound onset, there is already a substantial difference in the mean proportion of trials in which children are looking at the correct animal depending on whether they heard an animal name or an animal vocalization. Children are looking at the correct animal in a greater proportion of trials when they hear a familiar animal name, as compared to when they hear an animal vocalization, with performance on trials with onomatopoeic words somewhere in between. This difference is robust and continues to increase as the trial unfolds.
 
+```{r}
+d_e1_analysis <- d %>% filter(experiment == "experiment_1")
+```
+
 To assess these differences statistically, we computed children's reaction time (RT) as the mean time it took them to shift to the correct picture on trials in which they were looking at the wrong picture at sound onset, again separately for the three trial types. We first run a general model confirming that children's RT differed across the three conditions (F(2, 36) = 5.732, p = 0.002). Next, we individually compared children's performance: Children were faster to identify the target animal when hearing its name (M = 541ms), as compared to its vocalization (M = 840 ms, t (18) = 4.61, p < 0.001) or lexicalized sound (M = 801 ms, t (18) = 3.40, p = 0.002), with the last two conditions not differing from each other (t (18) = 0.47, p > 0.6).
 
-```{r fig.post = "tb", fig.cap = "Time course of children’s looking to the target animal after hearing a familiar animal name, onomatopoeic word, or animal vocalization. The graph shows children's responses for the trials in which they were looking at the distracter animal at sound onset. The x-axis shows time in milliseconds from sound onset. The y-axis shows the mean proportion of trials in which children are looking to the target animal. When hearing a familiar auditory cue, children were faster to orient to the correct animal after hearing its name, than when hearing the lexicalized sound or animal vocalization."}
+```{r fig.post = "tb", out.width="100%", fig.cap = "Time course of children’s looking to the target animal after hearing a familiar animal name, onomatopoeic word, or animal vocalization. The graph shows children's responses for the trials in which they were looking at the distracter animal at sound onset. The x-axis shows time in milliseconds from sound onset. The y-axis shows the mean proportion of trials in which children are looking to the target animal. When hearing a familiar auditory cue, children were faster to orient to the correct animal after hearing its name, than when hearing the lexicalized sound or animal vocalization."}
 
 png::readPNG("figs/oc_e1_new.png") %>% grid::grid.raster()
 ```
