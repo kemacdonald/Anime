@@ -5,7 +5,6 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
@@ -32,6 +31,20 @@ ichart.df %<>% mutate(Sub.Num = as.character(Sub.Num),
 
 cdi.df <- read_csv(paste0(read_path, "anime_tidy_cdi.csv"))
 cdi.df %<>% mutate(Sub.Num = as.character(Sub.Num))
+```
+
+## Check data
+
+How many participants do we have in each experiment? 
+
+```{r}
+ichart.df %>% 
+  select(Sub.Num, Sex, experiment, Months) %>% 
+  unique() %>% 
+  group_by(experiment, Sex) %>% 
+  summarise(n = n(),
+            m_age = mean(Months)) %>% 
+  kable(digits = 2)
 ```
 
 ### Compute proportion looking to Target, Distractor, and Away 
@@ -96,7 +109,7 @@ write_csv(x = graph_values, path = paste0(write_path, "anime_gvals.csv"))
 
 ```{r}
 rts <- ichart.df %>% 
-  select(Sub.Num, Tr.Num, RT, Response, trial_type, cue_type, target_img_type, 
+  select(Sub.Num, Tr.Num, RT, Response, trial_type, cue_type, target_img_type, Sex, Months,
          distracter_img_type, clean_target_img, GoodFirstGap, GoodRT, GoodLongestGap, 
          experiment) %>% 
   unique()

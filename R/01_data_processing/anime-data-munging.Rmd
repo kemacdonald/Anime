@@ -6,7 +6,6 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
@@ -77,19 +76,19 @@ anime.c.ichart %<>% filter(Condition != "E")
 Add variable to track experiment (experiment 2 has retention trials). To make merging easier, we select the same number of columns -- 0-6000ms -- for each experiment. 
 
 ```{r track experiment}
-anime.a.ichart %<>% 
+ anime.a.ichart %<>% 
   mutate(experiment = "e1") %>%
-  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image,
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image, Sex, Months,
          Condition, Response, RT, `0`:`6000`, experiment)
   
 anime.b.ichart %<>% 
   mutate(experiment = "e1") %>% 
-  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image,
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image, Sex, Months,
          Condition, Response, RT, `0`:`6000`, experiment)
 
 anime.c.ichart %<>%  
   mutate(experiment = "e2") %>% 
-  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image,
+  select(Sub.Num, Tr.Num, Months, Prescreen.Notes, Target.Image, Sex, Months,
          Condition, Response, RT, `0`:`6000`, experiment)
 ```
 
@@ -143,6 +142,7 @@ Merge CDI data.
 ```{r cdi merge}
 cdi_df <- bind_rows(anime_cdi, animoo_cdi) %>% 
   dplyr::rename(Sub.Num = ParticipantId) %>% 
+  rename(gender_cdi = Gender) %>% 
   filter(duplicated(Sub.Num) == FALSE) # REMOVES ANY DUPLICATES
 ```
 

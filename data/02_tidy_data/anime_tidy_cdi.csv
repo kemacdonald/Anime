@@ -1,4 +1,4 @@
-Sub.Num,Gender,CDIAge,VOCAB,ANIMALS,SOUND,experiment
+Sub.Num,gender_cdi,CDIAge,VOCAB,ANIMALS,SOUND,experiment
 23444,F,32,655,42,11,e2
 5175,M,30,534,28,12,e2
 5278,M,31,288,16,9,e2
