@@ -5,18 +5,17 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-rm(list=ls())
 knitr::opts_chunk$set(echo = T, message = F, warning = F)
 ```
 
 ```{r load_packages, include = FALSE}
-library(rstanarm); library(tidyverse)
+library(rstanarm); library(car); library(tidyverse)
 
 # Set the number of cores to the number of cores on your computer.
 options(mc.cores = parallel::detectCores())
 ```
 
-Read trial-level data.
+Load trial-level data.
 
 ```{r}
 d <- read_csv(file = "../../data/03_summary_tables/anime_trial_level.csv")
@@ -26,23 +25,26 @@ d <- read_csv(file = "../../data/03_summary_tables/anime_trial_level.csv")
 
 ### Reaction Time
 
-Compare RTs on familiar cue trials as a function of cue type. Note we should be using Bayes here because we are interested in providing an estimate of the strength of evidence for the hypothesis of *no difference* in RT and Accuracy between cue types.
+Compare RTs on familiar cue trials as a function of cue type. We use Bayesian linear mixed effects models because we are interested in providing an estimate of the strength of evidence for the hypothesis of *no difference* in RT and Accuracy across the different cue types.
+
+We also log transform Reaction Times (RT) to be more suitable for modeling on a linear scale.
 
 ```{r}
 d_e1_rt <- d %>% filter(experiment == "e1",
                               Response == "D", 
                               trial_type == "familiar",
-                              RT >= 300, RT <= 1800,
+                              RT >= 300, RT <= 2500,
                               GoodRT == T,
                               GoodFirstGap == T,
-                              GoodLongestGap == T)
+                              GoodLongestGap == T) %>% 
+  mutate(log_rt = log(RT))
 ```
 
 Fit the varying intercepts and slopes model.
 
 ```{r}
 m_bglmer <- stan_glmer(
-  RT ~ cue_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
+  log_rt ~ cue_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
   family = gaussian(), # specify type of model
   data = d_e1_rt,
   prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
@@ -61,45 +63,34 @@ Extract the samples from the model obect.
 d_post_rt_e1 <- m_bglmer %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
-  rename(intercept = `(Intercept)`)
-```
-
-Now make the plot, showing a set of plausible values for the RT estimates.
-
-```{r}
-rt_e1_plot <- d_post_rt_e1 %>% 
-  select(intercept, cue_typeonomatopoeic, cue_typevocalization) %>% 
-  mutate(cue_typeonomatopoeic = intercept + cue_typeonomatopoeic,
-         cue_typevocalization = intercept + cue_typevocalization) %>% 
-  gather() %>% 
-  mutate(key = case_when(
-    key == "intercept" ~ "name",
-    key == "cue_typeonomatopoeic" ~ "onomatopoeia", 
-    key == "cue_typevocalization" ~ "vocalization"
-    )
-  ) %>% 
-  ggplot(aes(x = value, color = key, linetype = key)) +
-  geom_line(stat = "density", size = 1.5) +
-  labs(x = "RT (ms) model estimate", color = NULL) +
-  lims(x = c(300, 1200)) + 
-  scale_color_grey() +
-  guides(linetype = F) +
-  theme(legend.position = "top") 
-
-rt_e1_plot
+  dplyr::rename(name = `(Intercept)`) %>% 
+  select(name, cue_typeonomatopoeic, cue_typevocalization) %>% 
+  mutate(cue_typeonomatopoeic = name + cue_typeonomatopoeic,
+         cue_typevocalization = name + cue_typevocalization) %>% 
+  gather(key = cue_type, value = param_est) %>% 
+  mutate(cue_type = case_when(
+    cue_type == "cue_typeonomatopoeic" ~ "onomatopoeia", 
+    cue_type == "cue_typevocalization" ~ "vocalization",
+    TRUE ~ "name"
+  ),
+  rt_scale_param = exp(param_est))
 ```
 
 ### Accuracy
 
+Note that we use the empirical logit to transform proportion looking scores to be more suitable for modeling on the linear scale. 
+
 ```{r}
-d_e1_acc_fam <- d %>% filter(experiment == "e1")
+d_e1_acc_fam <- d %>% 
+  filter(experiment == "e1") %>% 
+  mutate(emp_logit_acc = car::logit(m_prop_looking))
 ```
 
 Fit accuracy model to compare proportion looking for familiar cues. 
 
 ```{r}
 m_acc_e1 <- stan_glmer(
-  m_prop_looking ~ cue_type + trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
+  emp_logit_acc ~ cue_type + trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
   family = gaussian(), # specify type of model
   data = d_e1_acc_fam,
   prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
@@ -112,17 +103,20 @@ m_acc_e1 <- stan_glmer(
 Let's first extract the samples from the model obect.
 
 ```{r}
-# Get a dataframe: One row per posterior sample
+# make function to convert logit back to probability 
+logit_to_prob <- function(logit) {
+  odds <- exp(logit)
+  odds / (1 + odds)
+}
+```
+
+ Get a dataframe: One row per posterior sample
+
+```{r}
 d_post_acc_e1 <- m_acc_e1 %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
-  rename(intercept = `(Intercept)`)
-```
-
-Plot posterior distributions over the accuracy estimates. 
-
-```{r}
-d_acc_e1_plot <- d_post_acc_e1 %>% 
+  rename(intercept = `(Intercept)`) %>% 
   select(intercept, cue_typeonomatopoeic, cue_typevocalization, trial_typefamiliar) %>% 
   mutate(cue_typeonomatopoeic_familiar = intercept + cue_typeonomatopoeic + trial_typefamiliar,
          cue_typevocalization_familiar = intercept + cue_typevocalization + trial_typefamiliar,
@@ -136,26 +130,8 @@ d_acc_e1_plot <- d_post_acc_e1 %>%
   gather(key = cue_type, value = param_estimate) %>% 
   mutate(cue_type = str_replace(cue_type, pattern = "cue_type", "")) %>% 
   separate(cue_type, sep = "_", into = c("cue_type", "trial_type")) %>% 
-  mutate(cue_type = ifelse(cue_type == "intercept", "name", cue_type))
-```
-
-Now make the plot
-
-```{r}
-acc_e1_plot <- d_acc_e1_plot %>% 
-  mutate(include = ifelse(trial_type == "novel" & cue_type == "onomatopoeic", "remove", "include")) %>% 
-  filter(include == "include") %>% 
-  ggplot(aes(x = param_estimate, color = cue_type, linetype = cue_type)) +
-  geom_line(stat = "density", size = 1.5) +
-  labs(x = "Accuracy model estimate", color = NULL) +
-  geom_vline(xintercept = 0.5, linetype = "dashed") +
-  scale_color_grey() +
-  guides(linetype = F) + 
-  lims(x = c(0.4, 0.8)) +
-  theme(legend.position = "right") +
-  facet_wrap(~trial_type, ncol = 1)
-
-acc_e1_plot
+  mutate(cue_type = ifelse(cue_type == "intercept", "name", cue_type),
+         acc_prob_scale = logit_to_prob(param_estimate))
 ```
 
 ## Experiment 2
@@ -165,17 +141,18 @@ acc_e1_plot
 ```{r}
 d_e2_rt <- d %>% filter(experiment == "e2",
                               Response == "D", 
-                              RT >= 300, RT <= 1800,
+                              RT >= 300, RT <= 2500,
                               GoodRT == T,
                               GoodFirstGap == T,
-                              GoodLongestGap == T)
+                              GoodLongestGap == T) %>% 
+  mutate(log_rt = log(RT))
 ```
 
 Fit the varying intercepts and slopes model.
 
 ```{r}
 m_rt_e2 <- stan_glmer(
-  RT ~ trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
+  log_rt ~ trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
   family = gaussian(), # specify type of model
   data = d_e2_rt,
   prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
@@ -185,51 +162,37 @@ m_rt_e2 <- stan_glmer(
 )
 ```
 
-Let's first extract the samples from the model obect.
+Extract the samples from the model obect.
 
 ```{r}
 # Get a dataframe: One row per posterior sample
 d_post_rt_e2 <- m_rt_e2 %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
-  rename(intercept = `(Intercept)`)
-```
-
-```{r}
-d_rt_e2_plot <- d_post_rt_e2 %>% 
+  rename(intercept = `(Intercept)`) %>% 
   select(intercept, trial_typefamiliar, trial_typeretention) %>% 
   mutate(trial_typefamiliar = intercept + trial_typefamiliar,
          trial_typeretention = intercept + trial_typeretention) %>% 
   rename(disambiguation = intercept, 
          familiar = trial_typefamiliar,
          retention = trial_typeretention) %>% 
-  gather(key = trial_type, value = param_estimate)
-```
-
-```{r}
-rt_e2_plot <- d_rt_e2_plot %>% 
-  ggplot(aes(x = param_estimate, color = trial_type, linetype = trial_type)) +
-  geom_line(stat = "density", size = 1.5) +
-  labs(x = "RT (ms) model estimate", color = NULL) +
-  lims(x = c(300, 1200)) + 
-  scale_color_grey() +
-  guides(linetype = F) +
-  theme(legend.position = "top") 
-
-rt_e2_plot
+  gather(key = trial_type, value = param_estimate) %>% 
+  mutate(rt_scale_param = exp(param_estimate))
 ```
 
 ### Accuracy
 
 ```{r}
-d_e2_acc_fam <- d %>% filter(experiment == "e2")
+d_e2_acc_fam <- d %>% 
+  filter(experiment == "e2") %>% 
+  mutate(emp_logit_acc = car::logit(m_prop_looking))
 ```
 
 Fit accuracy model to compare proportion looking for familiar cues. 
 
 ```{r}
 m_acc_e2 <- stan_glmer(
-  m_prop_looking ~ trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
+  emp_logit_acc ~ trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
   family = gaussian(), # specify type of model
   data = d_e2_acc_fam,
   prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
@@ -239,53 +202,21 @@ m_acc_e2 <- stan_glmer(
 )
 ```
 
+Get a dataframe: One row per posterior sample
+
 ```{r}
-# Get a dataframe: One row per posterior sample
 d_post_acc_e2 <- m_acc_e2 %>% 
   as.data.frame() %>% 
   as_tibble() %>% 
-  rename(intercept = `(Intercept)`)
-```
-
-Plot posterior distributions over the accuracy estimates. 
-
-```{r}
-d_acc_e2_plot <- d_post_acc_e2 %>% 
+  rename(intercept = `(Intercept)`) %>% 
   select(intercept, trial_typefamiliar, trial_typeretention) %>% 
   mutate(trial_typefamiliar = intercept + trial_typefamiliar,
          trial_typeretention = intercept + trial_typeretention) %>% 
   rename(disambiguation = intercept, 
          familiar = trial_typefamiliar,
          retention = trial_typeretention) %>% 
-  gather(key = trial_type, value = param_estimate) 
-```
-
-Now make the plot
-
-```{r}
-acc_e2_plot <- d_acc_e2_plot %>% 
-  ggplot(aes(x = param_estimate, color = trial_type, linetype = trial_type)) +
-  geom_line(stat = "density", size = 1.5) +
-  labs(x = "Accuracy model estimate", color = NULL) +
-  geom_vline(xintercept = 0.5, linetype = "dashed") +
-  scale_color_grey() +
-  guides(linetype = F) + 
-  lims(x = c(0.4, 0.8)) +
-  theme(legend.position = "right") +
-  theme(legend.position = "top") 
-
-acc_e2_plot
-```
-
-## Save model ggplots
-
-```{r}
-model_plots <- list(rt_e1 = rt_e1_plot, 
-                    acc_e1 = acc_e1_plot,
-                    acc_e2 = acc_e2_plot,
-                    rt_e2 = rt_e2_plot)
-
-saveRDS(model_plots, file = "../../data/03_summary_tables/anime-posterior-plots.rds")
+  gather(key = trial_type, value = param_estimate) %>% 
+  mutate(acc_prob_scale = logit_to_prob(param_estimate))
 ```
 
 ## Save posterior model estimates
@@ -300,6 +231,3 @@ saveRDS(posteriors, file = "../../data/03_summary_tables/anime-posterior-samples
 
 beepr::beep(sound = "fanfare")
 ```
-
-
-

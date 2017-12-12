@@ -5,7 +5,6 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-rm(list=ls())
 knitr::opts_chunk$set(echo = T, message = F, warning = F)
 ```
 
@@ -21,10 +20,20 @@ theme_set(ggthemes::theme_few())
 
 ```{r}
 d <- read_csv("../../data/03_summary_tables/anime_participant_level.csv")
-model_plots <- readRDS("../../data/03_summary_tables/anime-posterior-plots.rds")
+d_models <- readRDS("../../data/03_summary_tables/anime-posterior-samples.rds")
 ```
 
 ### Experiment 1
+
+```{r}
+ms_rt_e1 <- d_models$acc_e1 %>% 
+  group_by(cue_type) %>% 
+  summarise(m = mean(rt_scale_param),
+            hdi_lower = quantile(rt_scale_param, probs = 0.05),
+            hdi_upper = quantile(rt_scale_param, probs = 0.95)) %>% 
+  mutate_if(.predicate = is.numeric, .funs = round, digits = 2) 
+```
+
 
 ```{r}
 e1 <- d %>% 
@@ -34,13 +43,15 @@ e1 <- d %>%
          cue_type = recode(cue_type, onomatopoeic = "onomatopoeic\nword")) %>% 
   ggplot(aes(x = cue_type, y = ss_prop_looking)) +
   #geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
+  geom_pointrange(data = ms_rt_e1, 
+                  aes(ymin = hdi_lower, ymax = hdi_upper)) + 
   geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey40") + 
   geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
   facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
   labs(x = "Cue Type", y = "Prop. Target Looking") +
   lims(y = c(0, 1)) 
-
+e1
 ```
 
 ```{r}
