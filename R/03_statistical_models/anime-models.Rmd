@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = T, message = F, warning = F)
 ```
 
 ```{r load_packages, include = FALSE}
-library(rstanarm); library(car); library(tidyverse)
+library(rstanarm); library(car); library(here); library(tidyverse)
 
 # Set the number of cores to the number of cores on your computer.
 options(mc.cores = parallel::detectCores())
@@ -18,7 +18,7 @@ options(mc.cores = parallel::detectCores())
 Load trial-level data.
 
 ```{r}
-d <- read_csv(file = "../../data/03_summary_tables/anime_trial_level.csv")
+d <- read_csv(here("data/03_summary_tables", "anime_trial_level.csv"))
 ```
 
 ## Experiment 1
@@ -66,8 +66,9 @@ d_post_rt_e1 <- m_bglmer %>%
   dplyr::rename(name = `(Intercept)`) %>% 
   select(name, cue_typeonomatopoeic, cue_typevocalization) %>% 
   mutate(cue_typeonomatopoeic = name + cue_typeonomatopoeic,
-         cue_typevocalization = name + cue_typevocalization) %>% 
-  gather(key = cue_type, value = param_est) %>% 
+         cue_typevocalization = name + cue_typevocalization,
+         sample_id = 1:n()) %>% 
+  gather(key = cue_type, value = param_est, -sample_id) %>% 
   mutate(cue_type = case_when(
     cue_type == "cue_typeonomatopoeic" ~ "onomatopoeia", 
     cue_type == "cue_typevocalization" ~ "vocalization",
@@ -120,14 +121,15 @@ d_post_acc_e1 <- m_acc_e1 %>%
   select(intercept, cue_typeonomatopoeic, cue_typevocalization, trial_typefamiliar) %>% 
   mutate(cue_typeonomatopoeic_familiar = intercept + cue_typeonomatopoeic + trial_typefamiliar,
          cue_typevocalization_familiar = intercept + cue_typevocalization + trial_typefamiliar,
-         cue_typename_familiar = intercept + trial_typefamiliar) %>% 
+         cue_typename_familiar = intercept + trial_typefamiliar,
+          sample_id = 1:n()) %>% 
   rename(intercept_novel = intercept, 
          cue_typeonomatopoeic_novel = cue_typeonomatopoeic, 
          cue_typevocalization_novel = cue_typevocalization) %>% 
   mutate(cue_typeonomatopoeic_novel = intercept_novel + cue_typeonomatopoeic_novel,
           cue_typevocalization_novel = intercept_novel + cue_typevocalization_novel) %>% 
   select(-trial_typefamiliar) %>% 
-  gather(key = cue_type, value = param_estimate) %>% 
+  gather(key = cue_type, value = param_estimate, - sample_id) %>% 
   mutate(cue_type = str_replace(cue_type, pattern = "cue_type", "")) %>% 
   separate(cue_type, sep = "_", into = c("cue_type", "trial_type")) %>% 
   mutate(cue_type = ifelse(cue_type == "intercept", "name", cue_type),
@@ -172,11 +174,12 @@ d_post_rt_e2 <- m_rt_e2 %>%
   rename(intercept = `(Intercept)`) %>% 
   select(intercept, trial_typefamiliar, trial_typeretention) %>% 
   mutate(trial_typefamiliar = intercept + trial_typefamiliar,
-         trial_typeretention = intercept + trial_typeretention) %>% 
+         trial_typeretention = intercept + trial_typeretention,
+         sample_id = 1:n()) %>% 
   rename(disambiguation = intercept, 
          familiar = trial_typefamiliar,
          retention = trial_typeretention) %>% 
-  gather(key = trial_type, value = param_estimate) %>% 
+  gather(key = trial_type, value = param_estimate, -sample_id) %>% 
   mutate(rt_scale_param = exp(param_estimate))
 ```
 
@@ -211,11 +214,12 @@ d_post_acc_e2 <- m_acc_e2 %>%
   rename(intercept = `(Intercept)`) %>% 
   select(intercept, trial_typefamiliar, trial_typeretention) %>% 
   mutate(trial_typefamiliar = intercept + trial_typefamiliar,
-         trial_typeretention = intercept + trial_typeretention) %>% 
+         trial_typeretention = intercept + trial_typeretention,
+         sample_id = 1:n()) %>% 
   rename(disambiguation = intercept, 
          familiar = trial_typefamiliar,
          retention = trial_typeretention) %>% 
-  gather(key = trial_type, value = param_estimate) %>% 
+  gather(key = trial_type, value = param_estimate, -sample_id) %>% 
   mutate(acc_prob_scale = logit_to_prob(param_estimate))
 ```
 
@@ -227,7 +231,7 @@ posteriors <- list(rt_e1 = d_post_rt_e1,
                    acc_e2 = d_post_acc_e2,
                    rt_e2 = d_post_rt_e2)
 
-saveRDS(posteriors, file = "../../data/03_summary_tables/anime-posterior-samples.rds")
+saveRDS(posteriors, file = here("data/03_summary_tables", "anime-posterior-samples.rds"))
 
 beepr::beep(sound = "fanfare")
 ```
