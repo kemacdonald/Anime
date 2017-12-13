@@ -54,7 +54,7 @@ m_bglmer <- stan_glmer(
 )
 ```
 
-Note that we get some error message, but this should nbot affect results per [this](https://github.com/stan-dev/rstanarm/issues/202) github issue.
+Note that we get some error message, but this should not affect results per [this](https://github.com/stan-dev/rstanarm/issues/202) github issue.
 
 Extract the samples from the model obect.
 

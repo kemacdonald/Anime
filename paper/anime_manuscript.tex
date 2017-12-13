@@ -442,8 +442,8 @@ excluded due to fussiness. Children were from mid/high-SES families.
 
 \begin{figure}
 \centering
-\includegraphics{anime_manuscript_files/figure-latex/unnamed-chunk-4-1.pdf}
-\caption{\label{fig:unnamed-chunk-4}Trial types in Experiments 1 organized
+\includegraphics{anime_manuscript_files/figure-latex/stimuli-e1-1.pdf}
+\caption{\label{fig:stimuli-e1}Trial types in Experiments 1 and 2 organized
 by type of cue: Familiar vs.~Novel. The target animal for each trial
 type is on the left.}
 \end{figure}
@@ -634,62 +634,113 @@ sounds, and animal vocalization to identify familiar
 animals:}\label{familiar-trials-using-familiar-animal-names-lexicalized-sounds-and-animal-vocalization-to-identify-familiar-animals}
 
 Our first question is whether a familiar animal name, onomatopoeic word,
-and animal vocalization is a particularly effective cue in guiding
-children's attention to an animal in their environment. To begin
-exploring this question, Figure 2 shows children's looking behavior on
-the LWL procedure (Fernald et al., 1998). In order to capture children's
-speed of processing, we only show children's responses on trials in
-which they start looking at the wrong animal. From sound onset onward,
-we show the mean proportion of trials in which children were looking at
-the correct picture, every 33ms, with different lines representing
-children's responses on Name trials (black), Onomatopoeic-word trials
-(dark grey), and Vocalization trials (light grey). The y-axis shows the
-mean proportion of trials on which children are looking at the correct
-animal. The x-axis represents time from sound onset in milliseconds. As
-can be seen in Figure 1, at 750ms from sound onset, there is already a
-substantial difference in the mean proportion of trials in which
-children are looking at the correct animal depending on whether they
-heard an animal name or an animal vocalization. Children are looking at
-the correct animal in a greater proportion of trials when they hear a
-familiar animal name, as compared to when they hear an animal
-vocalization, with performance on trials with onomatopoeic words
-somewhere in between. This difference is robust and continues to
-increase as the trial unfolds.
+and animal vocalization are equally effective in guiding children's
+attention to an animal in the visual scene. Figure 2 shows children's
+looking behavior on the LWL procedure (Fernald et al., 1998). In order
+to capture children's speed of processing, we only show children's
+responses on trials in which they start looking at the wrong animal.
+From sound onset onward, we show the mean proportion of trials in which
+children were looking at the correct picture, every 33ms, with different
+lines representing children's responses on Name trials (black),
+Onomatopoeic-word trials (light grey), and Vocalization trials (dark
+grey). The y-axis shows the mean proportion of trials on which children
+were looking at the correct animal. The x-axis represents time from
+sound onset in milliseconds. As can be seen in Figure 1, around 750ms
+from sound onset, there is already a substantial difference in the mean
+proportion of trials in which children are looking at the correct animal
+depending on whether they heard an animal name or an animal
+vocalization. Children are looking at the correct animal in a greater
+proportion of trials when they hear a familiar animal name, as compared
+to when they hear an animal vocalization, with performance on trials
+with onomatopoeic words falling between the two.
 
-To assess these differences statistically, we computed children's
-reaction time (RT) as the mean time it took them to shift to the correct
-picture on trials in which they were looking at the wrong picture at
-sound onset, again separately for the three trial types. We first run a
-general model confirming that children's RT differed across the three
-conditions (F(2, 36) = 5.732, p = 0.002). Next, we individually compared
-children's performance: Children were faster to identify the target
-animal when hearing its name (M = 541ms), as compared to its
-vocalization (M = 840 ms, t (18) = 4.61, p \textless{} 0.001) or
-lexicalized sound (M = 801 ms, t (18) = 3.40, p = 0.002), with the last
-two conditions not differing from each other (t (18) = 0.47, p
-\textgreater{} 0.6).
+To quantify condition differences, we fit Bayesian mixed-effects
+regression models using the \texttt{rstanarm} R package {[}CITE
+package{]}. The mixed-effects approach allowed us to model the nested
+structure in our data, and we included a random intercept for each
+participant/item and a random slope for each item. We used Bayesian
+methods in order to quantify support in favor of a null hypothesis of
+interest -- in this case, the absence of a difference in real-time
+processing across the different cue types. To communicate the
+uncertainty in our estimates, we report the 95\% Highest Density
+Interval (HDI) of the posterior distribution of both the group means and
+the difference in means. The HDI provides a range of plausible parameter
+values given the data and the model. All analysis code can be found in
+the online repository for this project:
+\url{https://github.com/kemacdonald/anime}.
+
+We computed children's reaction time (RT) as the mean time it took them
+to shift to the correct picture on trials in which they were looking at
+the wrong picture at sound onset for the three cue types. To make RTs
+more suitable for modeling on a linear scale, all analyses were based on
+RTs that were scaled in log space using a logistic transformation, with
+the final model was specified as:
+\(log(RT) \sim cue\_type + (sub\_id | item)\).
+
+Figure 2B shows the full posterior distribution of group means for the
+RT measure across the different cue typs. Children were faster to
+identify the target animal while hearing its name (\(M_{name}\) = 876.35
+ms), as compared to its lexicalized animal sound (\(M_{onomatopeia}\) =
+649.70), and its vocalization (\(M_{vocalization}\) = 720.38). The
+difference between RTs for the name and lexicalized animal sounds was
+-70.67 with a HDI from -212.86 to 68.88. While the null value of 0 falls
+within the 95\% HDI, 83.50\% of the credible values fall below the null.
+The average difference in children's RT between the name and
+vocalization trials was -226.65 with a HDI from -361.37 to -85.23 and
+99.95\% of the credible values falling below zero. Finally, the average
+difference in children's RT between the lexicalized sounds and
+vocalization trials was -155.98 with a HDI from -301.18 to -5.77 and
+97.95\% of the credible values greater than zero.
+
+Together, the RT modeling results provide strong evidence that children
+processed animal names more efficiently than animal vocalizations, with
+almost all of the credible values falling below zero. There was slightly
+weaker evidence that children processed lexicalized animal sounds
+differently than animal vocalizations, but the numerical trend suggests
+that lexicalized sounds were processes with intermediate effiency,
+somehwere in between animal names and vocalizations.
 
 \begin{figure}
-\includegraphics[width=1\linewidth]{anime_manuscript_files/figure-latex/unnamed-chunk-6-1} \caption{Time course of children’s looking to the target animal after hearing a familiar animal name, onomatopoeic word, or animal vocalization. The graph shows children's responses for the trials in which they were looking at the distracter animal at sound onset. The x-axis shows time in milliseconds from sound onset. The y-axis shows the mean proportion of trials in which children are looking to the target animal. When hearing a familiar auditory cue, children were faster to orient to the correct animal after hearing its name, than when hearing the lexicalized sound or animal vocalization.}\label{fig:unnamed-chunk-6}
+\centering
+\includegraphics{anime_manuscript_files/figure-latex/oc-plot-e1-1.pdf}
+\caption{\label{fig:oc-plot-e1}Time course of children's looking to the
+target animal after hearing a familiar animal name, onomatopoeic word,
+or animal vocalization. The graph shows children's responses for the
+trials in which they were looking at the distracter animal at sound
+onset. The x-axis shows time in milliseconds from sound onset. The
+y-axis shows the mean proportion of trials in which children are looking
+to the target animal. When hearing a familiar auditory cue, children
+were faster to orient to the correct animal after hearing its name, than
+when hearing the lexicalized sound or animal vocalization.}
 \end{figure}
 
-When looking at children's reaction time, we found a difference in speed
-of processing for names, onomatopoeic words, and vocalization. Our next
-step was to confirm that children could use these three trial types to
-guide their attention to a familiar animal by comparing children's
-accuracy against chance performance (50\% accuracy). When accuracy is
-computed over a window from 300 to 4300 ms after the onset of the cue,
-the three types of auditory cue were equally effective in guiding
-children's attention to the target animal. Children looked to the
-correct animal when hearing the animal name (M = 0.62, t (18) = 3.57, p
-= 0.002), the lexicalized sound (M = 0.64, t (18) = 3.54, p = 0.002),
-and the animal vocalization (M = 0.64, t (18) = 5.90, p \textless{}
-0.001). A general linear model confirmed that there was no statistically
-significant difference between children's accuracy in these three
-conditions (F(2, 36) = .137, p = 0.873). These results show that the
-animal vocalization can be as good a cue to identify familiar animals as
-their names or lexicalized sounds if one gives children enough time to
-process the stimuli.
+When looking at children's reaction times, we found a difference in
+speed of processing for names, onomatopoeic words, and vocalization. Our
+next step was to estimate children's attention to the target image over
+the course of the trial to ask whether the three trial types were
+equally effective cues to guide their attention to a familiar animal. We
+computed accuracy over a window from 300 to 2500 ms after the onset of
+the cue. The upper left panel of Figure 3A shows children's proportion
+looking to the target for each trial type. Each point represents a
+single participant's Accuracy, the grey line shows the full distribution
+of the data, and the black horizontal line shows the median value.
+Visual inspection of the plot suggests that children's looking behavior
+was strikingly similar across the three familair cues.
+
+To quantify group differences and differences from random responding, we
+estimated mean proportion looking for each trial type using a Bayesian
+linear mixed-effects model with the same specifications as the RT model.
+The upper right panel of Figure 3B shows the full posterior distribution
+of the mean Accuracy for each cue type. Children's looking to the target
+image was reliably different from a model of random looking behavior
+(TODO STATS). Moreover, the three cues types were equally effective in
+guiding children's attention to the target animal (\(M_{name}\),
+\(M_{onoatopeia}\), \(M_{vocalization}\)) as shown by the high overlap
+in the posterior distributions of Accuracy and that the null value of no
+difference fell within the HDI for all group comparisons (TODO STATS).
+These results show that the animal vocalization can be as good a cue to
+identify familiar animals as their names or lexicalized sounds if one
+gives children enough time to process the stimuli.
 
 \subsubsection{Disambiguation Trials: Using novel animal names and
 animal vocalization to disambiguate novel
@@ -714,13 +765,13 @@ We also found no interaction between familiarity and type of cue (F(1,
 
 \begin{figure}
 \centering
-\includegraphics{anime_manuscript_files/figure-latex/unnamed-chunk-7-1.pdf}
-\caption{\label{fig:unnamed-chunk-7}Accuracy of responses to novel and
-familiar auditory cues. When hearing novel animal names or animal
-vocalizations, children reliably looked at the novel animal. When
-hearing a familiar animal name or animal vocalization, children reliably
-looked at the familiar animal. The different auditory cues were equally
-effective in guiding children's attention to the target.}
+\includegraphics{anime_manuscript_files/figure-latex/acc-plot-e1-1.pdf}
+\caption{\label{fig:acc-plot-e1}Accuracy of responses to novel and familiar
+auditory cues. When hearing novel animal names or animal vocalizations,
+children reliably looked at the novel animal. When hearing a familiar
+animal name or animal vocalization, children reliably looked at the
+familiar animal. The different auditory cues were equally effective in
+guiding children's attention to the target.}
 \end{figure}
 
 When performance is compared against chance level of 0.5, children
@@ -793,8 +844,8 @@ vocalizations as in Experiment 1.
 
 \begin{figure}
 \centering
-\includegraphics{anime_manuscript_files/figure-latex/stimuli_e2-1.pdf}
-\caption{(\#fig:stimuli\_e2)Trial types in Experiments 4 organized by
+\includegraphics{anime_manuscript_files/figure-latex/stimuli-e2-1.pdf}
+\caption{\label{fig:stimuli-e2}Trial types in Experiments 4 organized by
 type of trial. Children hear familiar and novel vocalizations. The
 target animal for each trial type is on the left.}
 \end{figure}
@@ -840,10 +891,10 @@ Experiment 1.
 
 \begin{figure}
 \centering
-\includegraphics{anime_manuscript_files/figure-latex/prop_look_e2-1.pdf}
-\caption{(\#fig:prop\_look\_e2)Accuracy of responses to familiar and
-novel animal vocalizations. Children reliably looked to the target
-animal after hearing a familiar animal vocalization and a novel animal
+\includegraphics{anime_manuscript_files/figure-latex/acc-plot-e2-1.pdf}
+\caption{\label{fig:acc-plot-e2}Accuracy of responses to familiar and novel
+animal vocalizations. Children reliably looked to the target animal
+after hearing a familiar animal vocalization and a novel animal
 vocalization. Children did not show evidence of retaining the mapping
 between a novel animal and a novel vocalization.}
 \end{figure}
@@ -915,8 +966,8 @@ target objects, while only 1 in 30 American mothers did so.
 
 Our second finding was that children looked at a novel animal when
 hearing a novel animal vocalization, with accuracy comparable to their
-disambiguation of novel animal names. In the book How Children Learn the
-Meaning of Words, Paul Bloom discusses different theories explaining
+disambiguation of novel animal names. In the book, How Children Learn
+the Meaning of Words, Paul Bloom discusses different theories explaining
 children's disambiguation biases. These biases could be a specifically
 lexical phenomenon that applies only to words (i.e., lexical account), a
 product of children's theory of mind restricted to communicative

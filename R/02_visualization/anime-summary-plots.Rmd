@@ -9,10 +9,11 @@ knitr::opts_chunk$set(echo = T, message = F, warning = F)
 ```
 
 ```{r libraries, include=FALSE}
-source("../helper_functions/libraries_v_3.3.R")
-library(magrittr)
-library(kmr); library(stringr); library(cowplot); 
-library(tidyverse)
+library(magrittr); library(kmr); library(stringr); library(cowplot); 
+library(here); library(tidyverse)
+
+# load helper functions and set theme
+source(here("R/helper_functions/", "libraries_v_3.3.R"))
 theme_set(ggthemes::theme_few())
 ```
 
@@ -26,63 +27,171 @@ d_models <- readRDS(here("data/03_summary_tables", "anime-posterior-samples.rds"
 ### Experiment 1
 
 ```{r}
-ms_acc_e1 <- d_models$acc_e1 %>% 
-  group_by(cue_type) %>% 
-  summarise(m = mean(rt_scale_param),
-            hdi_lower = quantile(rt_scale_param, probs = 0.05),
-            hdi_upper = quantile(rt_scale_param, probs = 0.95)) %>% 
+samples_e1_acc <- d_models$acc_e1 %>% 
+  mutate(condition = str_c(cue_type, trial_type, sep = "_")) 
+```
+
+Compute summaries of posterior distributions over accuracy estimates.
+
+```{r}
+ms_acc_e1 <- samples_e1_acc %>% 
+  filter(condition != "onomatopoeic_novel") %>% 
+  group_by(cue_type, trial_type) %>% 
+  summarise(m = mean(acc_prob_scale),
+            hdi_lower = quantile(acc_prob_scale, probs = 0.05),
+            hdi_upper = quantile(acc_prob_scale, probs = 0.95)) %>% 
   mutate_if(.predicate = is.numeric, .funs = round, digits = 2) 
 ```
 
+Make the data and group means model plot.
+
 ```{r}
-e1 <- d %>% 
+e1_acc_plot <- d %>% 
   filter(experiment == "e1") %>% 
   mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1), 
-         trial_type = recode(trial_type, disambiguation = "novel"),
-         cue_type = recode(cue_type, onomatopoeic = "onomatopoeic\nword")) %>% 
-  ggplot(aes(x = cue_type, y = ss_prop_looking)) +
-  #geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
-  geom_pointrange(data = ms_acc_e1, 
-                  aes(ymin = hdi_lower, ymax = hdi_upper)) + 
-  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey40") + 
-  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
+         trial_type = recode(trial_type, disambiguation = "novel")) %>%
+  dplyr::rename(m = ss_prop_looking) %>% 
+  ggplot(aes(x = cue_type, y = m)) +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
+  geom_line(aes(group = Sub.Num), color = "grey", alpha = 0.5) + 
+  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey30",
+              adjust = 1, fill = NA) + 
+  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
+  geom_line(data = ms_acc_e1, aes(group = 1), color = "darkred", size = 1,
+            position = position_nudge(x = 0.3)) + 
+  geom_pointrange(data = ms_acc_e1, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkred", 
+                  fill = "darkred", shape=21, size = 0.5,
+                  position = position_nudge(x = 0.3)) + 
   facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
   labs(x = "Cue Type", y = "Prop. Target Looking") +
   lims(y = c(0, 1)) 
-e1
 ```
 
+Clean up the posterior samples to make the plot.
+
 ```{r}
-e1_acc_final_plot <- plot_grid(e1, model_plots$acc_e1, rel_widths = c(1, 1.2), labels = c("a", "b"))
+e1_acc_hyp_d <- samples_e1_acc %>% 
+  filter(condition != "onomatopoeic_novel") %>% 
+  select(-param_estimate, -condition) %>% 
+  spread(key = cue_type, value = acc_prob_scale) %>% 
+  mutate(name_onomatopoeic_diff = name - onomatopoeic,
+         name_vocalization_diff = name - vocalization,
+         onomatopeic_vocalization_diff = onomatopoeic - vocalization) %>% 
+  select(-name, -onomatopoeic, -vocalization) %>% 
+  gather(key = ind_contrast, value = param_est, -sample_id, - trial_type) %>% 
+  filter(!is.na(param_est))
+```
+
+Make the group differences plot.
+
+```{r}
+e1_acc_group_diff_plot <- e1_acc_hyp_d %>% 
+  mutate(param_est = param_est * -1, 
+         ind_contrast = recode(ind_contrast, 
+                               name_onomatopoeic_diff = "name_onomatopeia",
+                               name_vocalization_diff = "name_vocalization",
+                               onomatopeic_vocalization_diff = "onomatopeia_vocalization"),
+         ind_contrast_fact = factor(ind_contrast)) %>% 
+  ggplot(aes(x = param_est, color = ind_contrast_fact, linetype = ind_contrast_fact)) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_line(stat = "density", size = 2) +
+  scale_color_grey() +
+  labs(x = "Difference in Accuracy", y = "Density",
+       color = "Contrast:",
+       linetype = "Contrast:") +
+  facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
+  theme(legend.position = "right")
+```
+
+Build the final plot
+
+```{r}
+e1_acc_final_plot <- plot_grid(e1_acc_plot, e1_acc_group_diff_plot, 
+                               rel_widths = c(1, 1.4), labels = c("a", "b"))
 e1_acc_final_plot
 ```
 
 ```{r}
-ggsave(e1_acc_final_plot, filename = "../../paper/figs/prop_look_e1_new.png")
+ggsave(e1_acc_final_plot, filename = here("paper/figs", "prop_look_e1_new.png"), 
+       width = 9, height = 6)
 ```
 
 ### Experiment 2
 
 ```{r}
-e2 <- d %>% 
-  filter(experiment == "e2") %>% 
-  mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1)) %>% 
-  ggplot(aes(x = trial_type, y = ss_prop_looking)) +
-  #geom_boxplot(width = 0.2, fill = "darkgrey", outlier.colour = "white") +
-  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.3, size = 1, color = "grey40") + 
-  scale_x_discrete(expand = c(0,0.5)) +
-  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
-  geom_hline(yintercept = 0.5, linetype = "dashed") +
-  labs(x = "Trial Type", y = "Prop. Target Looking") +
-  lims(y = c(0, 1)) 
+samples_e2_acc <- d_models$acc_e2 
 ```
 
 ```{r}
-e2_acc_final_plot <- plot_grid(e2, model_plots$acc_e2, rel_widths = c(1.2, 1), labels = c("a", "b"))
+ms_acc_e2 <- samples_e2_acc %>% 
+  group_by(trial_type) %>% 
+  summarise(m = mean(acc_prob_scale),
+            hdi_lower = quantile(acc_prob_scale, probs = 0.05),
+            hdi_upper = quantile(acc_prob_scale, probs = 0.95)) %>% 
+  mutate_if(.predicate = is.numeric, .funs = round, digits = 4) 
+```
+
+Make the data and group means model plot.
+
+```{r}
+e2_acc_plot <- d %>% 
+  filter(experiment == "e2") %>% 
+  mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1)) %>%
+  dplyr::rename(m = ss_prop_looking) %>% 
+  ggplot(aes(x = trial_type, y = m)) +
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  geom_line(aes(group = Sub.Num), color = "grey", alpha = 0.5) + 
+  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey30",
+              adjust = 1, fill = NA) + 
+  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
+  geom_line(data = ms_acc_e2, aes(group = 1), color = "darkred", size = 1,
+            position = position_nudge(x = 0.3)) + 
+  geom_pointrange(data = ms_acc_e2, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkred", 
+                  fill = "darkred", shape=21, size = 0.5,
+                  position = position_nudge(x = 0.3)) + 
+  labs(x = "Trial Type", y = "Prop. Target Looking") +
+  lims(y = c(0, 1))  
+```
+
+Clean up the posterior samples to make the plot.
+
+```{r}
+e2_acc_hyp_d <- samples_e2_acc %>% 
+  select(-param_estimate) %>% 
+  spread(key = trial_type, value = acc_prob_scale) %>% 
+  mutate(familiar_disambiguation = familiar - disambiguation,
+         familiar_retention = familiar - retention,
+         disambiguation_retention = disambiguation - retention) %>% 
+  select(-disambiguation, -familiar, -retention) %>% 
+  gather(key = ind_contrast, value = param_est, -sample_id) %>% 
+  filter(!is.na(param_est))
+```
+
+Make the group differences plot.
+
+```{r}
+e2_acc_group_diff_plot <- e2_acc_hyp_d %>% 
+  mutate(ind_contrast_fact = factor(ind_contrast)) %>% 
+  ggplot(aes(x = param_est, color = ind_contrast_fact, linetype = ind_contrast_fact)) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_line(stat = "density", size = 2) +
+  scale_color_grey() +
+  labs(x = "Difference in Accuracy", y = "Density",
+       color = "Contrast:",
+       linetype = "Contrast:") +
+  lims(x = c(-0.2, 0.6)) +
+  theme(legend.position = c(0.75, 0.83))
+```
+
+Build the final plot for experiment 2. 
+
+```{r}
+e2_acc_final_plot <- plot_grid(e2_acc_plot, e2_acc_group_diff_plot, 
+                               rel_widths = c(1, 0.8), labels = c("a", "b"))
 e2_acc_final_plot
 ```
 
 ```{r}
-ggsave(e2_acc_final_plot, filename = "../../paper/figs/prop_look_e2_new.png")
+ggsave(e2_acc_final_plot, filename = here("paper/figs", "prop_look_e2_new.png"),
+       width = 10, height = 4.5)
 ```

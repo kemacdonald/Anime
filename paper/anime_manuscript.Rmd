@@ -41,13 +41,17 @@ class             : "man"
 output            : papaja::apa6_pdf
 ---
 
-```{r load_packages, include = FALSE}
-library("papaja"); library(knitr); library(png); library(tidyverse)
+```{r load-packages, include = FALSE}
+library("papaja"); library(knitr); library(png); library(here); library(tidyverse)
 ```
 
-```{r}
-d <- read_csv(file = "../data/03_summary_tables/anime_trial_level.csv")
-d_models <- read_rds(path = "../data/03_summary_tables/anime-posterior-samples.rds")
+```{r global-options, include=FALSE}
+knitr::opts_chunk$set(fig.pos = 'tb')
+```
+
+```{r load-data-models}
+d <- read_csv(here("data/03_summary_tables", "anime_trial_level.csv"))
+d_models <- read_rds(here("data/03_summary_tables", "anime-posterior-samples.rds"))
 ```
 
 # Introduction
@@ -82,11 +86,11 @@ Our second question is whether two-year-olds make similar inferences when mappin
 
 ## Method
 
-```{r}
+```{r filter-e1}
 d_e1 <- filter(d, experiment == "e2")
 ```
 
-```{r}
+```{r make-e1-demo-table}
 participants_e1 <- d_e1 %>% 
   select(Sub.Num, CDIAge, Sex, Months) %>% 
   unique() %>% 
@@ -99,9 +103,9 @@ participants_e1 <- d_e1 %>%
 
 Participants were `r participants_e1$n %>% sum()` 32-month-old children (M=`r mean(d_e1$Months)`; range = `r range(d_e1$Months)[1]`,`r range(d_e1$Months)[2]`, `r participants_e1$n[1]` girls. All were reported by parents to be typically developing and from families where English was the dominant language. Two participants were excluded due to fussiness. Children were from mid/high-SES families.
 
-```{r, fig.pos = "tb", fig.cap = "Trial types in Experiments 1 organized by type of cue: Familiar vs. Novel. The target animal for each trial type is on the left."}
+```{r stimuli-e1, fig.cap = "Trial types in Experiments 1 and 2 organized by type of cue: Familiar vs. Novel. The target animal for each trial type is on the left."}
 
-png::readPNG("figs/stimuli.png") %>% grid::grid.raster()
+png::readPNG(here("paper/figs", "stimuli.png")) %>% grid::grid.raster()
 ```
 
 ### Visual stimuli 
@@ -146,34 +150,30 @@ Participants' eye movements were video-recorded and coded with a precision of 33
 
 Our first question is whether a familiar animal name, onomatopoeic word, and animal vocalization are equally effective in guiding children's attention to an animal in the visual scene. Figure 2 shows children's looking behavior on the LWL procedure (Fernald et al., 1998). In order to capture children's speed of processing, we only show children's responses on trials in which they start looking at the wrong animal. From sound onset onward, we show the mean proportion of trials in which children were looking at the correct picture, every 33ms, with different lines representing children's responses on Name trials (black), Onomatopoeic-word trials (light grey), and Vocalization trials (dark grey). The y-axis shows the mean proportion of trials on which children were looking at the correct animal. The x-axis represents time from sound onset in milliseconds. As can be seen in Figure 1, around 750ms from sound onset, there is already a substantial difference in the mean proportion of trials in which children are looking at the correct animal depending on whether they heard an animal name or an animal vocalization. Children are looking at the correct animal in a greater proportion of trials when they hear a familiar animal name, as compared to when they hear an animal vocalization, with performance on trials with onomatopoeic words falling between the two.
 
-```{r}
-d_model_e1 <- d_models$rt_e1 %>% 
-  select(intercept, cue_typeonomatopoeic, cue_typevocalization) %>% 
-  rename(name = intercept) %>% 
-  mutate(cue_typeonomatopoeic = name + cue_typeonomatopoeic,
-         cue_typevocalization = name + cue_typevocalization)
+```{r filter-model-rt-e1}
+d_model_e1_rt <- d_models$rt_e1 
 ```
 
-```{r}
-e1_model_summary <- d_model_e1 %>% 
-  gather(key = cue_type, value = param_est)
+```{r e1-rt-model-sumamry}
+e1_model_summary_rt <- d_model_e1_rt %>% 
   group_by(cue_type) %>% 
-  summarise(m = mean(param_est),
-            hdi_lower = quantile(param_est, probs = 0.05),
-            hdi_upper = quantile(param_est, probs = 0.95)) %>% 
+  summarise(m = mean(rt_scale_param),
+            hdi_lower = quantile(rt_scale_param, probs = 0.05),
+            hdi_upper = quantile(rt_scale_param, probs = 0.95)) %>% 
   mutate_if(.predicate = is.numeric, .funs = round, digits = 2)
 ```
 
-```{r}
-e1_rt_hyp_d <- d_model_e1 %>% 
-  mutate(name_onomatopoeic_diff = name - cue_typeonomatopoeic,
-         name_vocalization_diff = name - cue_typevocalization,
-         onomatopeic_vocalization_diff = cue_typeonomatopoeic - cue_typevocalization) %>% 
-  select(-name, - cue_typeonomatopoeic, -cue_typevocalization) 
-
+```{r e1-rt-group-diffs}
+e1_rt_hyp_d <- d_model_e1_rt %>% 
+  select(-param_est) %>% 
+  spread(key = cue_type, value = rt_scale_param) %>% 
+  mutate(name_onomatopoeic_diff = name - onomatopoeia,
+         name_vocalization_diff = name - vocalization,
+         onomatopeic_vocalization_diff = onomatopoeia - vocalization) %>% 
+  select(-name, -onomatopoeia, -vocalization) %>% 
+  gather(key = ind_contrast, value = param_est, -sample_id) 
 
 e1_rt_hyp_table <- e1_rt_hyp_d %>% 
-  gather(key = ind_contrast, value = param_est) %>% 
   group_by(ind_contrast) %>% 
   summarise(m = mean(param_est),
             hdi_lower = quantile(param_est, probs = 0.025),
@@ -181,30 +181,29 @@ e1_rt_hyp_table <- e1_rt_hyp_d %>%
   mutate_if(.predicate = is.numeric, .funs = round, digits = 2)
 
 prob_diff0 <- e1_rt_hyp_d %>% 
-  gather(key = ind_contrast, value = param_est) %>% 
   group_by(ind_contrast) %>% 
   summarise(prob = mean(param_est < 0)) %>% 
   mutate_if(.predicate = is.numeric, .funs = round, digits = 4)
 ```
 
-To quantify these differences, we used the `rstanarm` R package to fit Bayesian mixed-effects regression models. The mixed-effects approach allowed us to model the nested structure in our data, and we included a random intercept for each participant/item and a random slope for each item. We used Bayesian methods in order to quantify support in favor of a null hypothesis of interest – in this case, the absence of a difference in real-time processing across the different cue types. To communicate the uncertainty in our estimates, we report the 95% Highest Density Interval (HDI) of the posterior distribution of both the group means and the difference in means. The HDI provides a range of plausible parameter values given the data and the model. All analysis code can be found in the online repository for this project: https://github.com/kemacdonald/anime.
+To quantify condition differences, we fit Bayesian mixed-effects regression models using the `rstanarm` R package [CITE package]. The mixed-effects approach allowed us to model the nested structure in our data, and we included a random intercept for each participant/item and a random slope for each item. We used Bayesian methods in order to quantify support in favor of a null hypothesis of interest – in this case, the absence of a difference in real-time processing across the different cue types. To communicate the uncertainty in our estimates, we report the 95% Highest Density Interval (HDI) of the posterior distribution of both the group means and the difference in means. The HDI provides a range of plausible parameter values given the data and the model. All analysis code can be found in the online repository for this project: https://github.com/kemacdonald/anime.
 
-We computed children's reaction time (RT) as the mean time it took them to shift to the correct picture on trials in which they were looking at the wrong picture at sound onset for the three cue types. To make RTs more suitable for modeling on a linear scale, all analyses were based on RTs that were scaled in log space using a logistic transformation, with the final model was specified as: \textit{log(RT) $\sim$ cue_type + (1 + sub_id | item)}. 
+We computed children's reaction time (RT) as the mean time it took them to shift to the correct picture on trials in which they were looking at the wrong picture at sound onset for the three cue types. To make RTs more suitable for modeling on a linear scale, all analyses were based on RTs that were scaled in log space using a logistic transformation, with the final model was specified as: $log(RT) \sim cue\_type + (sub\_id | item)$. 
 
-Figure 2B shows the full posterior distribution of group means for the RT measure across the different cue typs. Children were faster to identify the target animal while hearing its name ($M_{name}$ = `r m_sum_rt_e1$m[3]` ms), as compared to its lexicalized animal sound ($M_{onomatopeia}$ = `r m_sum_rt_e1$m[1]`), and its vocalization ($M_{vocalization}$ = `r m_sum_rt_e1$m[2]`). The difference between RTs for the name and lexicalized animal sounds was `r e1_rt_hyp_test$m[1]` with a HDI from `r e1_rt_hyp_test$hdi_lower[1]` to `r e1_rt_hyp_test$hdi_upper[1]`. While the null value of 0 falls within the 95% HDI, `r prob_diff0$prob[1] * 100`% of the credible values fall below the null. The average difference in children's RT between the name and vocalization trials was `r e1_rt_hyp_table$m[2] ` with a HDI from `r e1_rt_hyp_test$hdi_lower[2]` to `r e1_rt_hyp_test$hdi_upper[2]` and `r prob_diff0$prob[2] * 100`% of the credible values falling below zero. Finally, the average difference in children's RT between the lexicalized sounds and vocalization trials was `r e1_rt_hyp_table$m[3] ` with a HDI from `r e1_rt_hyp_test$hdi_lower[3]` to `r e1_rt_hyp_test$hdi_upper[3]` and `r prob_diff0$prob[3] * 100`% of the credible values greater than zero. 
+Figure 2B shows the full posterior distribution of group means for the RT measure across the different cue typs. Children were faster to identify the target animal while hearing its name ($M_{name}$ = `r e1_model_summary_rt$m[3]` ms), as compared to its lexicalized animal sound ($M_{onomatopeia}$ = `r e1_model_summary_rt$m[1]`), and its vocalization ($M_{vocalization}$ = `r e1_model_summary_rt$m[2]`). The difference between RTs for the name and lexicalized animal sounds was `r e1_rt_hyp_table$m[1]` with a HDI from `r e1_rt_hyp_table$hdi_lower[1]` to `r e1_rt_hyp_table$hdi_upper[1]`. While the null value of 0 falls within the 95% HDI, `r prob_diff0$prob[1] * 100`% of the credible values fall below the null. The average difference in children's RT between the name and vocalization trials was `r e1_rt_hyp_table$m[2] ` with a HDI from `r e1_rt_hyp_table$hdi_lower[2]` to `r e1_rt_hyp_table$hdi_upper[2]` and `r prob_diff0$prob[2] * 100`% of the credible values falling below zero. Finally, the average difference in children's RT between the lexicalized sounds and vocalization trials was `r e1_rt_hyp_table$m[3] ` with a HDI from `r e1_rt_hyp_table$hdi_lower[3]` to `r e1_rt_hyp_table$hdi_upper[3]` and `r prob_diff0$prob[3] * 100`% of the credible values greater than zero. 
 
 Together, the RT modeling results provide strong evidence that children processed animal names more efficiently than animal vocalizations, with almost all of the credible values falling below zero. There was slightly weaker evidence that children processed lexicalized animal sounds differently than animal vocalizations, but the numerical trend suggests that lexicalized sounds were processes with intermediate effiency, somehwere in between animal names and vocalizations.
 
-```{r fig.post = "tb", out.width="100%", fig.cap = "Time course of children’s looking to the target animal after hearing a familiar animal name, onomatopoeic word, or animal vocalization. The graph shows children's responses for the trials in which they were looking at the distracter animal at sound onset. The x-axis shows time in milliseconds from sound onset. The y-axis shows the mean proportion of trials in which children are looking to the target animal. When hearing a familiar auditory cue, children were faster to orient to the correct animal after hearing its name, than when hearing the lexicalized sound or animal vocalization."}
+```{r oc-plot-e1, fig.cap = "Time course of children’s looking to the target animal after hearing a familiar animal name, onomatopoeic word, or animal vocalization. The graph shows children's responses for the trials in which they were looking at the distracter animal at sound onset. The x-axis shows time in milliseconds from sound onset. The y-axis shows the mean proportion of trials in which children are looking to the target animal. When hearing a familiar auditory cue, children were faster to orient to the correct animal after hearing its name, than when hearing the lexicalized sound or animal vocalization."}
 
-png::readPNG("figs/oc_e1_new.png") %>% grid::grid.raster()
+png::readPNG(here("paper/figs", "oc_e1_new.png")) %>% grid::grid.raster()
 ```
 
-```{r}
+```{r filter-model-acc-e1}
 d_model_acc_e1 <- d_models$acc_e1
 ```
 
-```{r}
+```{r summarise-model-acc-e1}
 # summarize posterior distributions for accuracy
 ```
 
@@ -216,9 +215,9 @@ To quantify group differences and differences from random responding, we estimat
 
 Our second question is whether children would orient to a novel animal after hearing a novel animal name or vocalization.  In order to evaluate this research question, we focus on children's accuracy, comparing their proportion of looking to the novel animal against chance performance. We started by fitting a general linear model with familiarity (familiar or novel sound) and type of sound (animal name or vocalization) as within-subject variables predicting children's proportion of looks to the novel animal. Figure 3 shows children’s proportion of looking to the novel animal in the different conditions. We found a main effect of familiarity, meaning that children were much more likely to look at the novel animal when hearing a novel sound than when hearing a familiar sound (F(1, 18) = 38.04, p < 0.001 ). We found no effect of type of sound, meaning that children's accuracy was indistinguishable when they heard a name or a vocalization (F(1, 18) = 0.120, p = 0.733). We also found no interaction between familiarity and type of cue (F(1, 18) = 0.045, p = 0.834).
 
-```{r fig.post = "tb", fig.cap = "Accuracy of responses to novel and familiar auditory cues. When hearing novel animal names or animal vocalizations, children reliably looked at the novel animal. When hearing a familiar animal name or animal vocalization, children reliably looked at the familiar animal. The different auditory cues were equally effective in guiding children’s attention to the target."}
+```{r acc-plot-e1, fig.cap = "Accuracy of responses to novel and familiar auditory cues. When hearing novel animal names or animal vocalizations, children reliably looked at the novel animal. When hearing a familiar animal name or animal vocalization, children reliably looked at the familiar animal. The different auditory cues were equally effective in guiding children’s attention to the target."}
 
-png::readPNG("figs/prop_look_e1_new.png") %>% grid::grid.raster()
+png::readPNG(here("paper/figs", "prop_look_e1_new.png")) %>% grid::grid.raster()
 ```
 
 When performance is compared against chance level of 0.5, children reliably looked to the novel animal when hearing the novel animal name (M = 0.62, t(18) = 3.101,  p = 0.006) or novel animal vocalization (M = 0.63, t(18) = 6.25,  p < 0.001). Children reliably looked at the familiar animal when hearing the familiar animal name (M = 0.65, t(18) = 3.637,  p = 0.001) or familiar animal vocalization (M = 0.64, t(18) = 4.43,  p < 0.001).
@@ -247,7 +246,7 @@ The visual stimuli were the same as in Experiment 1, except for the novel animal
 
 The auditory stimuli consisted of the same familiar and novel animal vocalizations as in Experiment 1.
 
-```{r stimuli_e2, fig.pos = "tb", fig.cap = "Trial types in Experiments 4 organized by type of trial. Children hear familiar and novel vocalizations. The target animal for each trial type is on the left."}
+```{r stimuli-e2, fig.cap = "Trial types in Experiments 4 organized by type of trial. Children hear familiar and novel vocalizations. The target animal for each trial type is on the left."}
 
 png::readPNG("figs/stimuli_e2.png") %>% grid::grid.raster()
 ```
@@ -266,7 +265,7 @@ Experiment 2 consisted of one visit. Each child saw 30 trials, consisting of thr
 
 Figure 5 presents children’s proportion looking to the target animal after hearing a familiar or a novel animal vocalization over a window from 300 to 4300 ms after the onset of the vocalization. We start by fitting a general linear model with the three conditions as within-subject factors. The main effect of condition confirmed that performance on retention trials was lower than in the other conditions (F(2, 22) = 3.890, p = 0.028). When next compared accuracy against chance level of 0.5.  When children heard a familiar animal vocalization, they oriented to the target familiar animal (M = 0.62, t (21) = 5.47, p < 0.001). When children heard a novel animal vocalization, they looked at a novel animal instead (M = 0.63, t (21) = 3.76, p < 0.001). These results replicate the main finding from Experiment 1.
 
-```{r prop_look_e2, fig.pos = "tb", fig.cap = "Accuracy of responses to familiar and novel animal vocalizations. Children reliably looked to the target animal after hearing a familiar animal vocalization and a novel animal vocalization. Children did not show evidence of retaining the mapping between a novel animal and a novel vocalization."}
+```{r acc-plot-e2, fig.cap = "Accuracy of responses to familiar and novel animal vocalizations. Children reliably looked to the target animal after hearing a familiar animal vocalization and a novel animal vocalization. Children did not show evidence of retaining the mapping between a novel animal and a novel vocalization."}
 
 png::readPNG("figs/prop_look_e2_new.png") %>% grid::grid.raster()
 ```
