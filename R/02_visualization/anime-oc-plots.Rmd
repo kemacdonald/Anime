@@ -120,13 +120,13 @@ group_means_plot <- d_ss %>%
   mutate(cue_type = recode(cue_type, onomatopoeic = "onomatopoeia")) %>% 
   ggplot(aes(x = cue_type, y = m)) +
   geom_jitter(width = 0.03, alpha = 0.8, shape = 21, color = "black", size = 3) +
-  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey30",
+  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey50",
               adjust = 1, fill = NA) + 
   geom_line(aes(group = Sub.Num), color = "grey", alpha = 0.5) + 
-  geom_line(aes(group = 1), data = e1_model_summary, color = "darkred", size = 1,
+  geom_line(aes(group = 1), data = e1_model_summary, color = "darkorange", size = 1,
             position = position_nudge(x = 0.4)) + 
-  geom_pointrange(data = e1_model_summary, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkred", 
-                  fill = "darkred", shape=21, size = 0.5,
+  geom_pointrange(data = e1_model_summary, aes(ymin = hdi_lower, ymax = hdi_upper),
+                  color = "darkorange", fill = "darkorange", shape=21, size = 0.5,
                   position = position_nudge(x = 0.4)) + 
   labs(x = "Cue Type", y = "RT (msec)") +
   scale_x_discrete(expand = c(0,0.8)) +
@@ -148,8 +148,9 @@ group_diff_plot <- e1_rt_hyp_d %>%
   labs(x = "Difference in RT (msec)", y = "Density",
        color = "Contrast:",
        linetype = "Contrast:") +
-  lims(x = c(-250,700)) + 
-  theme(legend.position=c(.8, .7))
+  lims(x = c(-300,800)) + 
+  theme(legend.position=c(.8, .7),
+        legend.background = element_rect(fill=alpha('white', 0.1)))
 ```
 
 ## Construct the final plot
@@ -163,6 +164,5 @@ final_plot
 
 ```{r}
 ggsave(final_plot, filename = here("paper/figs", "oc_e1_new.png"), 
-       width = 11, height = 9)
+       width = 10, height = 7)
 ```
-

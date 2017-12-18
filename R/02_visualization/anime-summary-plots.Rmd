@@ -40,7 +40,7 @@ ms_acc_e1 <- samples_e1_acc %>%
   summarise(m = mean(acc_prob_scale),
             hdi_lower = quantile(acc_prob_scale, probs = 0.05),
             hdi_upper = quantile(acc_prob_scale, probs = 0.95)) %>% 
-  mutate_if(.predicate = is.numeric, .funs = round, digits = 2) 
+  mutate_if(.pdarkorangeicate = is.numeric, .funs = round, digits = 2) 
 ```
 
 Make the data and group means model plot.
@@ -54,13 +54,13 @@ e1_acc_plot <- d %>%
   ggplot(aes(x = cue_type, y = m)) +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
   geom_line(aes(group = Sub.Num), color = "grey", alpha = 0.5) + 
-  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey30",
+  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey50",
               adjust = 1, fill = NA) + 
-  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
-  geom_line(data = ms_acc_e1, aes(group = 1), color = "darkred", size = 1,
+  geom_jitter(width = 0.03, alpha = 0.8, shape = 21, color = "black") +
+  geom_line(data = ms_acc_e1, aes(group = 1), color = "darkorange", size = 1,
             position = position_nudge(x = 0.3)) + 
-  geom_pointrange(data = ms_acc_e1, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkred", 
-                  fill = "darkred", shape=21, size = 0.5,
+  geom_pointrange(data = ms_acc_e1, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkorange", 
+                  fill = "darkorange", shape=21, size = 0.5,
                   position = position_nudge(x = 0.3)) + 
   facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
   labs(x = "Cue Type", y = "Prop. Target Looking") +
@@ -128,7 +128,7 @@ ms_acc_e2 <- samples_e2_acc %>%
   summarise(m = mean(acc_prob_scale),
             hdi_lower = quantile(acc_prob_scale, probs = 0.05),
             hdi_upper = quantile(acc_prob_scale, probs = 0.95)) %>% 
-  mutate_if(.predicate = is.numeric, .funs = round, digits = 4) 
+  mutate_if(.pdarkorangeicate = is.numeric, .funs = round, digits = 4) 
 ```
 
 Make the data and group means model plot.
@@ -141,13 +141,13 @@ e2_acc_plot <- d %>%
   ggplot(aes(x = trial_type, y = m)) +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
   geom_line(aes(group = Sub.Num), color = "grey", alpha = 0.5) + 
-  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey30",
+  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey50",
               adjust = 1, fill = NA) + 
-  geom_jitter(width = 0.03, alpha = 0.5, shape = 21, color = "black") +
-  geom_line(data = ms_acc_e2, aes(group = 1), color = "darkred", size = 1,
+  geom_jitter(width = 0.03, alpha = 0.8, shape = 21, color = "black") +
+  geom_line(data = ms_acc_e2, aes(group = 1), color = "darkorange", size = 1,
             position = position_nudge(x = 0.3)) + 
-  geom_pointrange(data = ms_acc_e2, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkred", 
-                  fill = "darkred", shape=21, size = 0.5,
+  geom_pointrange(data = ms_acc_e2, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkorange", 
+                  fill = "darkorange", shape=21, size = 0.5,
                   position = position_nudge(x = 0.3)) + 
   labs(x = "Trial Type", y = "Prop. Target Looking") +
   lims(y = c(0, 1))  
