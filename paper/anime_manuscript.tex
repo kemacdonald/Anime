@@ -126,7 +126,7 @@ non-communicative domain}
   \abstract{When hearing a novel name, children tend to select a novel object rather
 than a familiar one, a bias known as disambiguation. This bias is often
 assumed to reflect children's expectations about the nature of words or
-expectations about the communicative intention of speakers. This study
+expectations about the communicative intention of speakers. This work
 investigated whether similar biases emerge in a domain that is
 non-linguistic and non-communicative for children, but in which strong
 regularities can be found: the vocalizations that animals produce. Using
@@ -135,12 +135,12 @@ identify familiar animals based on their vocalizations, though not as
 fast as they are to identify these same animals when hearing their
 names. We then show that children rapidly look at an unfamiliar animal
 when hearing a novel animal vocalization or novel animal name, being
-equally fast in both conditions. In an additional experiment, we
-replicate the finding that children look at a novel animal when hearing
-a novel animal vocalization, but show that these biases do not
-necessarily lead to learning. We characterize disambiguation biases as
-resulting from domain-general processing mechanisms, rather than from
-lexical or communicative constraints.}
+equally fast in both conditions. In a follow-up experiment, we replicate
+the key finding that children look at a novel animal when hearing a
+novel animal vocalization, but show that these biases do not necessarily
+lead to learning. We characterize disambiguation biases as resulting
+from domain-general processing mechanisms, rather than from lexical or
+communicative constraints.}
   \keywords{disambiguation, mutual exclusivity, environmental sounds, retention,
 word learning \\
 
@@ -591,25 +591,21 @@ agreed within one frame on 94\% of all shifts.
 \textbf{Accuracy:} On those trials in which the infant was fixating a
 picture at the onset of the speech stimulus, accuracy was computed by
 dividing the time looking to the target object by the time looking to
-both target and distracter, from 300 to 4300 ms from the onset of the
+both target and distracter, from 300 to 2500 ms from the onset of the
 target word. Accuracy before 300 ms was not included because shifts to
 the target occurring in this window had presumably been initiated before
-the onset of the noun. This analyses window included the entire duration
-of the trial, and it was longer than that of studies with familiar words
-(Fernald et al., 1996) because of the longer duration of the animal
-vocalizations (2 s.) and because of the introduction of novel auditory
-cues. A single analyses window was used for all trial types for
-consistency, and the entire duration of the trial was used in order to
-avoid arbitrary decisions. Mean accuracy was then computed for each
-participant on each trial type. Similar results are found when using a
-shorter analysis window.
+the onset of the noun. This analyses window was chosen because of the
+longer duration of the animal vocalizations (2 s.) and because of the
+introduction of novel auditory cues. A single analyses window was used
+for all trial types for consistency. Mean accuracy was then computed for
+each participant on each trial type.
 
 \textbf{Reaction time:} We calculated reaction time (RT) on those trials
 on which participants were looking at the distractor animal at the
 beginning of the sound. RT on each trial was the latency of the first
 shift to the correct animal within a 300- to 1,800-ms window from sound
 onset, as typically done in studies using this procedure (Fernald et
-al., 1998).
+al., 2008).
 
 \subsection{Results and discussion}\label{results-and-discussion}
 
@@ -639,18 +635,22 @@ animal vocalization, with performance on trials with onomatopoeic words
 falling between the two.
 
 To quantify these differences, we fit Bayesian mixed-effects regression
-models using the \texttt{rstanarm} R package (Gabry \& Goodrich, 2016).
-The mixed-effects approach allowed us to model the nested structure in
-our data by including random intercepts for each participant and item
-and a random slope for each item. We used Bayesian methods in order to
-quantify support in favor of null hypotheses of interest -- in this
-case, the absence of a difference in real-time processing across the
-different familiar cue types. To communicate the uncertainty in our
-estimates, we report the 95\% Highest Density Interval (HDI) around the
-point estimates of the group means and the difference in means. The HDI
-provides a range of plausible parameter values given the data and the
-model. All analysis code can be found in the online repository for this
-project: \url{https://github.com/kemacdonald/anime}.
+models using the \texttt{rstanarm} (Gabry \& Goodrich, 2016) package in
+R (3.4.1, R Core Team, 2017)\footnote{We, furthermore, used the
+  R-packages \emph{here} (0.1, Müller, 2017), \emph{knitr} (1.17, Xie,
+  2015), \emph{papaja} (0.1.0.9492, Aust \& Barth, 2017), and
+  \emph{tidyverse} (1.2.1, Wickham, 2017).}. The mixed-effects approach
+allowed us to model the nested structure in our data by including random
+intercepts for each participant and item and a random slope for each
+item. We used Bayesian methods in order to quantify support in favor of
+null hypotheses of interest -- in this case, the absence of a difference
+in real-time processing across the different familiar cue types. To
+communicate the uncertainty in our estimates, we report the 95\% Highest
+Density Interval (HDI) around the point estimates of the group means and
+the difference in means. The HDI provides a range of plausible parameter
+values given the data and the model. All analysis code can be found in
+the online repository for this project:
+\url{https://github.com/kemacdonald/anime}.
 
 We computed reaction time (RT) as the mean time it took them to shift to
 the correct picture on trials in which they were looking at the wrong
@@ -857,9 +857,9 @@ window used in Experiment 1 (300 to 2500 ms after the onset of the
 vocalization). Visual inspection of the figure suggest that children
 successfully oriented to the target image after hearing both familiar
 and novel animal vocalizations. The orange points show mean proportion
-target looking for familiar (\$M\_\{familiar\} =
-\(0.66, disambiguation (\)M\_\{disambiguation\} =\$ 0.64, and retention
-trials (\$M\_\{retention\} = \$ 0.50).
+target looking for familiar (\(M_{familiar}\) = 0.66, disambiguation
+(\(M_{disambiguation}\) = 0.64, and retention trials (\(M_{retention}\)
+= 0.50).
 
 Children's looking to the target image was reliably different from
 random looking behavior for both familiar and disambiguation trials,
@@ -1095,6 +1095,10 @@ interpreting complex sentences.
 \setlength{\parindent}{-0.5in} \setlength{\leftskip}{0.5in}
 
 \hypertarget{refs}{}
+\hypertarget{ref-R-papaja}{}
+Aust, F., \& Barth, M. (2017). \emph{papaja: Create APA manuscripts with
+R Markdown}. Retrieved from \url{https://github.com/crsh/papaja}
+
 \hypertarget{ref-baldwin1993infants}{}
 Baldwin, D. A. (1993). Infants' ability to consult the speaker for clues
 to word reference. \emph{Journal of Child Language}, \emph{20}(02),
@@ -1255,6 +1259,10 @@ Murray, M. M., Camen, C., Andino, S. L. G., Bovet, P., \& Clarke, S.
 (2006). Rapid brain discrimination of sounds of objects. \emph{Journal
 of Neuroscience}, \emph{26}(4), 1293--1302.
 
+\hypertarget{ref-R-here}{}
+Müller, K. (2017). \emph{Here: A simpler way to find your files}.
+Retrieved from \url{https://CRAN.R-project.org/package=here}
+
 \hypertarget{ref-namy1998words}{}
 Namy, L. L., \& Waxman, S. R. (1998). Words and gestures: Infants'
 interpretations of different forms of symbolic reference. \emph{Child
@@ -1275,6 +1283,11 @@ the National Academy of Sciences}, \emph{100}(20), 11702--11705.
 Preissler, M. A., \& Carey, S. (2005). The role of inferences about
 referential intent in word learning: Evidence from autism.
 \emph{Cognition}, \emph{97}(1), B13--B23.
+
+\hypertarget{ref-R-base}{}
+R Core Team. (2017). \emph{R: A language and environment for statistical
+computing}. Vienna, Austria: R Foundation for Statistical Computing.
+Retrieved from \url{https://www.R-project.org/}
 
 \hypertarget{ref-regier2003emergent}{}
 Regier, T. (2003). Emergent constraints on word-learning: A
@@ -1327,10 +1340,20 @@ Waxman, S. R., \& Gelman, S. A. (2009). Early word-learning entails
 reference, not merely associations. \emph{Trends in Cognitive Sciences},
 \emph{13}(6), 258--263.
 
+\hypertarget{ref-R-tidyverse}{}
+Wickham, H. (2017). \emph{Tidyverse: Easily install and load the
+'tidyverse'}. Retrieved from
+\url{https://CRAN.R-project.org/package=tidyverse}
+
 \hypertarget{ref-woodward1999infants}{}
 Woodward, A., \& Hoyne, K. (1999). Infants' learning about words and
 sounds in relation to objects. \emph{Child Development}, \emph{70}(1),
 65--77.
+
+\hypertarget{ref-R-knitr}{}
+Xie, Y. (2015). \emph{Dynamic documents with R and knitr} (2nd ed.).
+Boca Raton, Florida: Chapman; Hall/CRC. Retrieved from
+\url{https://yihui.name/knitr/}
 
 \hypertarget{ref-xu2002role}{}
 Xu, F. (2002). The role of language in acquiring object kind concepts in

@@ -9,7 +9,7 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
 ```{r libraries, include=FALSE}
-library(devtools); library(lwl); library(magrittr)
+library(lwl); library(magrittr)
 library(kmr); library(knitr)
 library(tidyverse);
 ```
