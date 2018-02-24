@@ -1,0 +1,60 @@
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[tb]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/stimuli-e1-1}
+
+}
+
+\caption{Trial types in Experiments 1 and 2 organized by type of cue: Familiar vs. Novel. The target animal for each trial type is on the left.}\label{fig:stimuli-e1}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/oc-plot-e1-1}
+
+}
+
+\caption{Reaction Time (RT) results for Experiment 1. Panel A shows the timecourse of children\T1\textquoteright s looking to the target animal after hearing a familiar animal name (black), onomatopoeic word (light grey), or animal vocalization (dark grey). Panel B shows the distribution of RT data across conditions. Each grey point shows a RT for a single trial. The black bar represent the most likely estimate of the condition means. The red lines connect the condition means to illustrate shifts in the RT distributions. Panel C shows the posterior distribution of credible RT differences across conditions. Color and linetype represent the contrast of interest and the red vertical dashed line represents the null value of zero condition difference. All error bars represent 95\% Highest Density Intervals.}\label{fig:oc-plot-e1}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/acc-plot-e1-1}
+
+}
+
+\caption{Accuracy results for Experiment 1 for familiar (upper panels) and novel (lower panels) trials. Panel A shows the data distribution and model estimates for Accuracy of children's looking behavior. Panel B shows the full posterior distribution over model estimates of differences in accuracy across conditions. The vertical dashed line represents the null model of zero difference in Accuracy. All other plotting conventions are the same as in Figure 2.}\label{fig:acc-plot-e1}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/stimuli-e2-1}
+
+}
+
+\caption{Trial types in Experiments 4 organized by type of trial. Children hear familiar and novel vocalizations. The target animal for each trial type is on the left.}\label{fig:stimuli-e2}
+\end{figure*}
+\efloatseparator
+ 
+\begin{figure*}[hbt]
+\ifnextchar[{\eatarg}{}
+[H]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/acc-plot-e2-1}
+
+}
+
+\caption{Accuracy of responses to familiar and novel animal vocalizations in Experiment 2. Panel A shows the data distribution alongside the model estimates of mean Accuracy across the different trial types. Panel B shows the full posterior distribution over model estimates of differences in accuracy across trial types. The vertical dashed line represents the null model of zero difference. All other plotting conventions are the same as in Figures 1 and 2.}\label{fig:acc-plot-e2}
+\end{figure*}
+\efloatseparator
+ 

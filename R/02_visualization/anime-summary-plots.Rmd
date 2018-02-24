@@ -9,11 +9,10 @@ knitr::opts_chunk$set(echo = T, message = F, warning = F)
 ```
 
 ```{r libraries, include=FALSE}
-library(magrittr); library(kmr); library(stringr); library(cowplot); 
-library(here); library(tidyverse)
-
 # load helper functions and set theme
 source(here("R/helper_functions/", "libraries_v_3.3.R"))
+library(magrittr); library(kmr); library(cowplot); library(here)
+library(tidyverse)
 theme_set(ggthemes::theme_few())
 ```
 
@@ -22,6 +21,7 @@ theme_set(ggthemes::theme_few())
 ```{r}
 d <- read_csv(here("data/03_summary_tables", "anime_participant_level.csv"))
 d_models <- readRDS(here("data/03_summary_tables", "anime-posterior-samples.rds"))
+d_trial_level <- read_csv(here("data/03_summary_tables", "anime_trial_level.csv"))
 ```
 
 ### Experiment 1
@@ -40,12 +40,89 @@ ms_acc_e1 <- samples_e1_acc %>%
   summarise(m = mean(acc_prob_scale),
             hdi_lower = quantile(acc_prob_scale, probs = 0.05),
             hdi_upper = quantile(acc_prob_scale, probs = 0.95)) %>% 
-  mutate_if(.pdarkorangeicate = is.numeric, .funs = round, digits = 2) 
+  mutate_if(.predicate = is.numeric, .funs = round, digits = 2) 
 ```
 
-Make the data and group means model plot.
+Make the data and group means model plot
 
 ```{r}
+## global plot variables
+dec_width = 0.5
+dec_size = 1.5
+connector_size = dec_size - 0.9
+connector_length <- 2.1
+
+# how many qantiles do you want?
+#q_seq <- c(0.025, 0.5, 0.975)
+q_seq <- c(0.5)
+
+p <- d %>% 
+  filter(experiment == "e1") %>% 
+   mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1), 
+         trial_type = recode(trial_type, disambiguation = "novel")) %>% 
+  ggplot(aes(x = cue_type, y = ss_prop_looking)) +
+  ggbeeswarm::geom_quasirandom(shape = 21, width = 0.1, color = "black", 
+                               size = 2,
+                               fill = "darkgrey",
+                               alpha = 0.5) + 
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
+  labs(x = "Cue Type", y = "Prop. Target Looking") +
+  lims(y = c(0, 1)) 
+
+
+
+# get model values
+d_model_vals <- samples_e1_acc %>% 
+  filter(condition != "onomatopoeic_novel") %>% 
+  dplyr::rename(ss_prop_looking = acc_prob_scale) %>% 
+  mutate(cue_type = ifelse(cue_type == "onomatopoeia", "onomatopoeic", cue_type))
+
+# get quantile vals
+d_quantiles <- d_model_vals %>% 
+  group_by(cue_type, trial_type) %>% 
+  summarise(val = hd(ss_prop_looking))
+
+for (qi in 1:length(q_seq)) {
+  p <- p + stat_summary(data = d_model_vals,
+                        geom = "errorbar", 
+                        fun.y = hd, fun.ymin = hd, fun.ymax = hd,
+                        width = dec_width - .02,
+                        size = dec_size,
+                        color = "black",
+                        fun.args = list(q = q_seq[[qi]]))
+}
+
+p <- p + 
+  geom_segment(data = filter(d_quantiles, cue_type %in% c("name", "onomatopoeic"),
+                                    trial_type == "familiar"),
+                      aes(x = 1 + dec_width/connector_length, 
+                          xend = 2 - dec_width/connector_length, 
+                          y = val[1], yend = val[2]), 
+             color = "red", 
+             size = connector_size,
+             alpha = 1) +
+  geom_segment(data = filter(d_quantiles, cue_type %in% c("onomatopoeic", "vocalization"),
+                                    trial_type == "familiar"),
+                      aes(x = 2 + dec_width/connector_length, 
+                          xend = 3 - dec_width/connector_length, 
+                          y = val[1], yend = val[2]), 
+             color = "red", 
+             size = connector_size,
+             alpha = 1) +
+  geom_segment(data = filter(d_quantiles, cue_type %in% c("name", "vocalization"),
+                                    trial_type == "novel"),
+                      aes(x = 1 + dec_width/connector_length, 
+                          xend = 2 - dec_width/connector_length, 
+                          y = val[1], yend = val[2]), 
+             color = "red", 
+             size = connector_size,
+             alpha = 1) 
+```
+
+Here's the violin plot just in case we want to go back to it.
+
+```{r, include = F, eval = F}
 e1_acc_plot <- d %>% 
   filter(experiment == "e1") %>% 
   mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1), 
@@ -53,15 +130,12 @@ e1_acc_plot <- d %>%
   dplyr::rename(m = ss_prop_looking) %>% 
   ggplot(aes(x = cue_type, y = m)) +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
-  geom_line(aes(group = Sub.Num), color = "grey", alpha = 0.5) + 
-  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey50",
-              adjust = 1, fill = NA) + 
-  geom_jitter(width = 0.03, alpha = 0.8, shape = 21, color = "black") +
-  geom_line(data = ms_acc_e1, aes(group = 1), color = "darkorange", size = 1,
-            position = position_nudge(x = 0.3)) + 
-  geom_pointrange(data = ms_acc_e1, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkorange", 
-                  fill = "darkorange", shape=21, size = 0.5,
-                  position = position_nudge(x = 0.3)) + 
+  geom_violin(trim = F, width = 0.5, size = 1, 
+              color = "grey50",fill = "grey90") + 
+  geom_jitter(color = "black", fill = "darkgrey", shape = 21, width = .03, size = 1.5) +
+  geom_pointrange(data = ms_acc_e1, aes(ymin = hdi_lower, ymax = hdi_upper), 
+                  color = "red", fill = "red", 
+                  shape=21, size = 0.6) + 
   facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
   labs(x = "Cue Type", y = "Prop. Target Looking") +
   lims(y = c(0, 1)) 
@@ -93,27 +167,34 @@ e1_acc_group_diff_plot <- e1_acc_hyp_d %>%
                                onomatopeic_vocalization_diff = "onomatopeia_vocalization"),
          ind_contrast_fact = factor(ind_contrast)) %>% 
   ggplot(aes(x = param_est, color = ind_contrast_fact, linetype = ind_contrast_fact)) +
-  geom_vline(xintercept = 0, linetype = "dashed") +
-  geom_line(stat = "density", size = 2) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red", size = 1) +
+  geom_line(stat = "density", size = 1.5) +
   scale_color_grey() +
-  labs(x = "Difference in Accuracy", y = "Density",
+  lims(x = c(-0.15, 0.3)) + 
+  labs(x = "Difference in Accuracy", 
+       y = "Density",
        color = "Contrast:",
        linetype = "Contrast:") +
-  facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
-  theme(legend.position = "right")
+  facet_wrap(~trial_type, ncol = 1) +
+  theme(legend.justification=c(1,1), legend.position=c(1, 1),
+        legend.background = element_rect(fill = "transparent", colour = "transparent"),
+        legend.key = element_rect(fill = "transparent", colour = "transparent"))
+
+e1_acc_group_diff_plot
 ```
 
 Build the final plot
 
 ```{r}
-e1_acc_final_plot <- plot_grid(e1_acc_plot, e1_acc_group_diff_plot, 
-                               rel_widths = c(1, 1.4), labels = c("a", "b"))
+e1_acc_final_plot <- plot_grid(p, e1_acc_group_diff_plot, 
+                               rel_widths = c(1, 1.1), 
+                               labels = c("a", "b"))
 e1_acc_final_plot
 ```
 
 ```{r}
 ggsave(e1_acc_final_plot, filename = here("paper/figs", "prop_look_e1_new.png"), 
-       width = 9, height = 6)
+       width = 8.5, height = 5)
 ```
 
 ### Experiment 2
@@ -128,29 +209,88 @@ ms_acc_e2 <- samples_e2_acc %>%
   summarise(m = mean(acc_prob_scale),
             hdi_lower = quantile(acc_prob_scale, probs = 0.05),
             hdi_upper = quantile(acc_prob_scale, probs = 0.95)) %>% 
-  mutate_if(.pdarkorangeicate = is.numeric, .funs = round, digits = 4) 
+  mutate_if(.predicate = is.numeric, .funs = round, digits = 4) 
 ```
 
-Make the data and group means model plot.
 
 ```{r}
+## global plot variables
+dec_width = 0.5
+dec_size = 1.5
+connector_size = dec_size - 0.9
+connector_length <- 2.1
+
+# how many qantiles do you want?
+#q_seq <- c(0.025, 0.5, 0.975)
+q_seq <- c(0.5)
+
+p_e2 <- d %>% 
+  filter(experiment == "e2") %>% 
+  mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1)) %>% 
+  ggplot(aes(x = trial_type, y = ss_prop_looking)) +
+  ggbeeswarm::geom_quasirandom(shape = 21, width = 0.1, color = "black", 
+                               size = 2,
+                               fill = "darkgrey",
+                               alpha = 0.5) + 
+  geom_hline(yintercept = 0.5, linetype = "dashed") +
+  labs(x = "Cue Type", y = "Prop. Target Looking") +
+  lims(y = c(0, 1)) 
+
+# get model values
+d_model_vals_e2 <- samples_e2_acc %>% 
+  dplyr::rename(ss_prop_looking = acc_prob_scale) 
+
+# get quantile vals
+d_quantiles_e2 <- d_model_vals_e2 %>% 
+  group_by(trial_type) %>% 
+  summarise(val = hd(ss_prop_looking))
+
+for (qi in 1:length(q_seq)) {
+  p_e2 <- p_e2 + stat_summary(data = d_model_vals_e2,
+                        geom = "errorbar", 
+                        fun.y = hd, fun.ymin = hd, fun.ymax = hd,
+                        width = dec_width - .02,
+                        size = dec_size,
+                        color = "black",
+                        fun.args = list(q = q_seq[[qi]]))
+}
+
+p_e2 <- p_e2 + 
+  geom_segment(data = d_quantiles_e2,
+                      aes(x = 1 + dec_width/connector_length, 
+                          xend = 2 - dec_width/connector_length, 
+                          y = val[2], yend = val[1]), 
+             color = "red", 
+             size = connector_size,
+             alpha = 1) +
+  geom_segment(data = d_quantiles_e2,
+                      aes(x = 2 + dec_width/connector_length, 
+                          xend = 3 - dec_width/connector_length, 
+                          y = val[1], yend = val[3]), 
+             color = "red", 
+             size = connector_size,
+             alpha = 1) 
+```
+
+Make the data and group means model plot (old violin plots).
+
+```{r, eval = F, include = F}
 e2_acc_plot <- d %>% 
   filter(experiment == "e2") %>% 
   mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1)) %>%
   dplyr::rename(m = ss_prop_looking) %>% 
   ggplot(aes(x = trial_type, y = m)) +
   geom_hline(yintercept = 0.5, linetype = "dashed") +
-  geom_line(aes(group = Sub.Num), color = "grey", alpha = 0.5) + 
-  geom_violin(draw_quantiles = 0.5, trim = F, width = 0.5, size = 1, color = "grey50",
-              adjust = 1, fill = NA) + 
-  geom_jitter(width = 0.03, alpha = 0.8, shape = 21, color = "black") +
-  geom_line(data = ms_acc_e2, aes(group = 1), color = "darkorange", size = 1,
-            position = position_nudge(x = 0.3)) + 
-  geom_pointrange(data = ms_acc_e2, aes(ymin = hdi_lower, ymax = hdi_upper), color = "darkorange", 
-                  fill = "darkorange", shape=21, size = 0.5,
-                  position = position_nudge(x = 0.3)) + 
+  geom_violin(trim = F, width = 0.5, size = 1, 
+              color = "grey50", fill = "grey90") + 
+  geom_jitter(color = "black", fill = "darkgrey", shape = 21, width = .03, size = 1.5) +
+  geom_pointrange(data = ms_acc_e2, aes(ymin = hdi_lower, ymax = hdi_upper), 
+                  color = "red", fill = "red", 
+                  shape=21, size = 0.6) +  
   labs(x = "Trial Type", y = "Prop. Target Looking") +
   lims(y = c(0, 1))  
+
+e2_acc_plot
 ```
 
 Clean up the posterior samples to make the plot.
@@ -173,25 +313,27 @@ Make the group differences plot.
 e2_acc_group_diff_plot <- e2_acc_hyp_d %>% 
   mutate(ind_contrast_fact = factor(ind_contrast)) %>% 
   ggplot(aes(x = param_est, color = ind_contrast_fact, linetype = ind_contrast_fact)) +
-  geom_vline(xintercept = 0, linetype = "dashed") +
-  geom_line(stat = "density", size = 2) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red", size = 1) +
+  geom_line(stat = "density", size = 1.5) +
   scale_color_grey() +
   labs(x = "Difference in Accuracy", y = "Density",
        color = "Contrast:",
        linetype = "Contrast:") +
   lims(x = c(-0.2, 0.6)) +
-  theme(legend.position = c(0.75, 0.83))
+  theme(legend.position = c(0.75, 0.83),
+        legend.background = element_rect(fill = "transparent", colour = "transparent"),
+        legend.key = element_rect(fill = "transparent", colour = "transparent"))
 ```
 
 Build the final plot for experiment 2. 
 
 ```{r}
-e2_acc_final_plot <- plot_grid(e2_acc_plot, e2_acc_group_diff_plot, 
-                               rel_widths = c(1, 0.8), labels = c("a", "b"))
+e2_acc_final_plot <- plot_grid(p_e2, e2_acc_group_diff_plot, 
+                               rel_widths = c(1, 1.1), labels = c("a", "b"))
 e2_acc_final_plot
 ```
 
 ```{r}
 ggsave(e2_acc_final_plot, filename = here("paper/figs", "prop_look_e2_new.png"),
-       width = 10, height = 4.5)
+       width = 8, height = 4)
 ```

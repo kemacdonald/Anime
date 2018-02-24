@@ -92,6 +92,9 @@
 \usepackage{csquotes}
 \usepackage{upgreek}
 
+ % Line numbering
+  \usepackage{lineno}
+  \linenumbers
 
 
 \usepackage{tikz} % Variable definition to generate author note
@@ -133,13 +136,13 @@ regularities can be found: the vocalizations that animals produce. Using
 online processing measures, we first show that two-year-olds can
 identify familiar animals based on their vocalizations, though not as
 fast as they are to identify these same animals when hearing their
-names. We then show that children rapidly look at an unfamiliar animal
-when hearing a novel animal vocalization or novel animal name, being
-equally fast in both conditions. In a follow-up experiment, we replicate
-the key finding that children look at a novel animal when hearing a
-novel animal vocalization, but show that these biases do not necessarily
-lead to learning. We characterize disambiguation biases as resulting
-from domain-general processing mechanisms, rather than from lexical or
+names. We then show that children look at an unfamiliar animal when
+hearing a novel animal vocalization or novel animal name, being equally
+fast in both conditions. In a follow-up experiment, we replicate the key
+finding that children look at a novel animal when hearing a novel animal
+vocalization, but show that these biases do not necessarily lead to
+learning. We characterize disambiguation biases as resulting from
+domain-general processing mechanisms, rather than from lexical or
 communicative constraints.}
   \keywords{disambiguation, mutual exclusivity, environmental sounds, retention,
 word learning \\
@@ -147,6 +150,13 @@ word learning \\
     \indent Word count: 7923
   }
 
+\usepackage[titles]{tocloft}
+\cftpagenumbersoff{figure}
+\renewcommand{\cftfigpresnum}{\itshape\figurename\enspace}
+\renewcommand{\cftfigaftersnum}{.\space}
+\setlength{\cftfigindent}{0pt}
+\setlength{\cftafterloftitleskip}{0pt}
+\settowidth{\cftfignumwidth}{Figure 10.\qquad}
 
 
 
@@ -190,11 +200,11 @@ objects, animal vocalizations and onomatopoeic words for vocalizations
 also provide consistent associations between auditory stimuli and
 different types of animals. Here, we compare young children's efficiency
 in using these different sounds as cues to identifying particular
-animals. In addition, we investigate whether children can use
-disambiguation strategies, which have frequently been characterized as
-pragmatic or lexically-specific in nature (Bloom, 2002; Diesendruck \&
-Markson, 2001; Markman, 1991) to infer which of two animals is
-associated with a novel animal vocalization.
+animals. Also, we investigate whether children can use disambiguation
+strategies, which have frequently been characterized as pragmatic or
+lexically-specific (Bloom, 2002; Diesendruck \& Markson, 2001; Markman,
+1991) to infer which of two animals is associated with a novel animal
+vocalization.
 
 The question of whether words are a special kind of stimulus is not new.
 Several studies have found advantages for speech sounds over tones in
@@ -203,15 +213,15 @@ Waxman, 2007; Xu, 2002). Focusing on associations between objects and
 sounds, objects and tones, or objects and gestures, several studies
 found that younger infants accept several different forms as potential
 object labels, but that older infants are more discriminating and favor
-words (Namy \& Waxman, 1998; Woodward \& Hoyne, 1999). A different line
-of research found that infants prefer to hear spoken words over some
-non-linguistic analogues (Vouloumanos \& Werker, 2004, 2007a, 2007b),
-and that the neonate brain responds differently to speech as compared to
-backwards speech (Pena et al., 2003). These studies found advantages for
-speech over non-linguistic analogues in categorization, individuation,
+words (Namy \& Waxman, 1998; Woodward \& Hoyne, 1999). Another line of
+research found that infants prefer to hear spoken words over some
+non-linguistic analogs (Vouloumanos \& Werker, 2004, 2007a, 2007b) and
+that the neonate brain responds differently to speech as compared to
+backward speech (Pena et al., 2003). These studies found advantages for
+speech over non-linguistic analogs in categorization, individuation,
 crossmodal association, and speech preferences. However, they all
 focused on arbitrary, non-linguistic cues that are not consistently
-associated to objects in children's everyday environments.
+associated with objects in children's everyday environments.
 
 Other research has approached the question of whether speech is special
 from a different perspective, comparing how people process spoken words
@@ -221,21 +231,21 @@ objects (e.g., car starting). Studies with adults have found
 similarities and differences in both behavioral and neural responses to
 cross-modal semantic associations between words and environmental
 sounds. For example, in a picture detection task, Chen and Spence (2011)
-found a faciliation effect for environmental sounds but not for words
+found a facilitation effect for environmental sounds but not for words
 when the onset of the auditory stimulus preceded the image by
 approximately 350 ms. In a follow-up study, Chen and Spence (2013)
-presented enviornmental sounds and words across a wider range of time
-intervals prior to the image onset. They found that both naturalistic
-sounds and spoken words lead to cross-modal priming, but that the effect
-of spoken words required a longer gap between the auditory and visual
-stimuli compared to the naturalistic sounds. They argue that these data
-are consistent with a differential processing account: that the
-recognition of environmental sounds is faster because words must also be
-processed at a lexical stage prior to accessing semantic
-representations, while environmental sounds activate the same semantic
-representation directly.
+presented environmental sounds and words across a wider range of time
+intervals before the image onset. They found that both naturalistic
+sounds and spoken words resulted in cross-modal priming, but that the
+effect of spoken words required more time between the auditory and
+visual stimuli as compared to the naturalistic sounds. They argue that
+these data are consistent with a differential processing account: that
+the recognition of environmental sounds is faster because words must
+also be processed at a lexical stage before accessing semantic
+representations, whereas environmental sounds activate semantic
+representations directly.
 
-In contrast, other work has found an advantage for the processing of
+In contrast, other studies have found an advantage for the processing of
 lexical items compared to environmental sounds. For example, in a
 sound-to-picture matching task, Lupyan and Thompson-Schill (2012) showed
 that words (\enquote{cat}) lead to faster and more accurate object
@@ -267,17 +277,17 @@ environmental sounds is relatively new, it is hard to reconcile these
 somewhat discrepant findings. Variations in tasks or timing of stimuli
 could influence results, and different theoretical commitments can lead
 to different interpretations. For example, environmental sounds are
-often treated as encompassing both the sounds of living and man-made
-objects (e.g.~cow mooing, bell ringing) despite evidence that these
+often treated as encompassing both the sounds of living and human-made
+objects (e.g., cow mooing, bell ringing) despite evidence that these
 sounds are treated differently by the adult brain (Murray, Camen,
 Andino, Bovet, \& Clarke, 2006). Nevertheless, this line of research
 provides promising new ways to examine the question of whether language
 emerges from the interaction of domain-general cognitive processes or
 domain-specific mechanism (Bates, MacWhinney, \& others, 1989). For
-example, recent research comparing processing of speech and non-speech
-sounds is leading to new insights relevant to autism, developmental
-language impairment, and cochlear implants (Cummings \& Ceponiene, 2010;
-McCleery et al., 2010).
+example, recent research comparing the processing of speech and
+non-speech sounds is leading to new insights relevant to autism,
+developmental language impairment, and cochlear implants (Cummings \&
+Ceponiene, 2010; McCleery et al., 2010).
 
 From a developmental perspective, it is also important to understand how
 children process words and non-arbitrary non-linguistic sounds. However,
@@ -291,26 +301,26 @@ children with autism and developmental language impairment found more
 severe deficits for the processing of words than environmental sounds
 (Cummings \& Ceponiene, 2010; McCleery et al., 2010).
 
-In the work repored there, we build on these earlier studies using the
+In the work reported there, we build on these earlier studies using the
 looking-while-listening paradigm, which has been widely used to assess
 real-time interpretation of spoken words by infants and young children
-(Fernald, Zangl, Portillo, \& Marchman, 2008). One major goal in this
+(Fernald, Zangl, Portillo, \& Marchman, 2008). One major goal of this
 research is to investigate how children process different types of
 auditory stimuli that are consistently associated with familiar animals
 but vary in level of arbitrariness. First, we ask whether 32-month-olds
-can use onomatopoeic sounds (e.g.~bow-wow), and animal vocalizations
+can use onomatopoeic sounds (e.g., bow-wow), and animal vocalizations
 (e.g., dog barking) to identify familiar animals, as well as familiar
 animal names (e.g., dog). By using real-time processing measures, we can
 determine whether these three sounds are equally effective as acoustic
 cues in guiding children's attention to a particular animal in the
 visual scene. The use of looking to visual stimuli, rather than
 object-choice responses, reduces the task demands of procedures
-requiring more complex responses such as reaching or pointing, and yield
+requiring more complex responses such as reaching or pointing and yield
 continuous rather than categorical measures of attention on every trial,
 capturing differences in processing that might not be detected by
 offline tasks.
 
-A second major goal in this research is to investigate how young
+A second major goal of this research is to investigate how young
 children learn to link non-linguistic sounds to animate objects. Do
 two-year-olds make similar inferences when mapping a novel word and a
 novel vocalization to an unfamiliar animal? Typically, word learning is
@@ -323,7 +333,7 @@ accompanied by synchronous physical movements might provide children
 with additional non-arbitrary cues to the source of the sound. Even in
 the absence of additional visual cues, it is often possible to pinpoint
 the source of a sound with reasonable accuracy. In contrast, because the
-acoustic structure of a word is in most cases arbitrary with respect to
+acoustic structure of a word is in most cases arbitrary concerning
 potential referents, and it is produced by a speaker and not by the
 object itself, learning to associate speech sounds with objects is often
 characterized as a complex problem of induction (Markman, 1991).
@@ -336,7 +346,7 @@ which children hear a novel label in the presence of a novel object and
 one or more familiar objects. In these situations, children tend to
 select the novel object as the referent for the novel word, presumably
 because the familiar objects already have names associated with them.
-Debate about the origins, scope, and generality of the Mutual
+The debate about the origins, scope, and generality of the Mutual
 Exclusivity (ME) constraint has focused on whether this response bias
 provides evidence for a lexical constraint, or whether it results
 instead from inferences about speakers' communicative intent. Lexical
@@ -348,7 +358,7 @@ word learning (i.e., it is domain-specific)} (Scofield \& Behrend,
 more broadly, reflecting assumptions that speakers are cooperative and
 should use conventional names to refer to familiar objects (Bloom, 2002;
 Clark, 1990). A third possibility is that the bias toward one-to-one
-mappings reflect general tendencies to find simple regularities in
+mappings reflects general tendencies to find simple regularities in
 complex domains, a perspective embraced by recent computational
 approaches to word learning (Frank, Goodman, \& Tenenbaum, 2009;
 McMurray, Horst, \& Samuelson, 2012; Regier, 2003).
@@ -368,7 +378,7 @@ consistent associations are observed between objects and auditory cues.
 \section{Experiment 1}\label{experiment-1}}
 
 Experiment 1 asks two questions. First, can 32-month-olds use familiar
-animal names (e.g., dog), onomatopoeic words (e.g.~bow-wow), and animal
+animal names (e.g., dog), onomatopoeic words (e.g., bow-wow), and animal
 vocalizations (e.g., dog barking) to identify familiar animals? These
 three sound types differ in arbitrariness along a continuum, with speech
 as the most arbitrary and vocalizations as the least arbitrary cue. We
@@ -382,19 +392,19 @@ One of three patterns of results is most likely to emerge: The first is
 that children are faster to identify animal names than onomatopoeic
 words, and faster to identify onomatopoeic sounds than animal
 vocalizations. This pattern of results could be predicted by
-computational models that see frequency as a crucial determinant of
-speed of processing (e.g., McMurray et al. (2012)) either at the token
-level (children in urban environments are likely to hear the names of
-animals more often than their vocalizations) or in total amount,
-resulting in more practice interpreting speech (high SES children might
-hear thousands of words daily, but not nearly as many animal sounds). It
-could also be predicted by developmental accounts that see language as
-having a privileged status in early development either in getting
-children's attention (Vouloumanos \& Werker, 2004, 2007a, 2007b), or due
-to the fact that words refers to objects directly (Waxman \& Gelman,
-2009) and are capable of evoking more category-diagnostic features
-decoupled from specific category members (Edmiston \& Lupyan, 2015). The
-second possible pattern of results is that children are faster to
+computational models that use frequency as a crucial determinant of
+speed of processing (e.g., McMurray et al. (2012)). That is, children in
+urban environments are more likely to hear the names of animals than
+their vocalizations, resulting in more practice interpreting speech
+(high SES children might hear thousands of words daily, but not nearly
+as many animal sounds). This pattern of results could also be predicted
+by developmental accounts privilege language cues early development --
+either for getting children's attention (Vouloumanos \& Werker, 2004,
+2007a, 2007b) or for the fact that words refer to objects directly
+(Waxman \& Gelman, 2009) and might evoke more category-diagnostic
+features compared to environmental sounds (Edmiston \& Lupyan, 2015).
+
+The second possible pattern of results is that children are faster to
 identify animal vocalizations than onomatopoeic sounds, and faster to
 identify onomatopoeic sounds than animal names. This pattern of results
 could be predicted by accounts that propose that non-arbitrary sounds
@@ -426,11 +436,10 @@ accounts that predict disambiguation only within the domain of word
 learning, or by pragmatic accounts that predict disambiguation only
 within communicative contexts. The second pattern of findings is that
 children look at a novel animal when hearing a novel name and when
-hearing a novel animal vocalization, with performance indistinguishable
-across these two conditions. This pattern of results would be compatible
-with accounts that propose that disambiguation biases emerge from
-domain-general learning mechanisms that look for regularities in complex
-input.
+hearing a novel animal vocalization, with comparable performance across
+these two conditions. This pattern would be compatible with accounts
+that propose that disambiguation biases emerge from domain-general
+learning mechanisms that look for regularities in complex input.
 
 \hypertarget{method}{%
 \subsection{Method}\label{method}}
@@ -444,7 +453,12 @@ families where English was the dominant language. Two participants were
 excluded due to fussiness. Children were from mid/high-SES families.
 
 \begin{figure}[tb]
-\includegraphics[width=0.95\linewidth]{anime_manuscript_files/figure-latex/stimuli-e1-1} \caption{Trial types in Experiments 1 and 2 organized by type of cue: Familiar vs. Novel. The target animal for each trial type is on the left.}\label{fig:stimuli-e1}
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/stimuli-e1-1} 
+
+}
+
+\caption{Trial types in Experiments 1 and 2 organized by type of cue: Familiar vs. Novel. The target animal for each trial type is on the left.}\label{fig:stimuli-e1}
 \end{figure}
 
 \hypertarget{visual-stimuli}{%
@@ -711,8 +725,13 @@ evidence of a graded effect of cue type on RTs with names being faster
 than onomatopeic animal sounds, which were faster than animal
 vocalizations.
 
-\begin{figure}[H]
-\includegraphics[width=0.95\linewidth]{anime_manuscript_files/figure-latex/oc-plot-e1-1} \caption{Reaction Time (RT) results for Experiment 1. Panel A shows the time course of children’s looking to the target animal after hearing a familiar animal name (black), onomatopoeic word (light grey), or animal vocalization (dark grey). The x-axis shows time in milliseconds from sound onset. The y-axis shows the mean proportion of trials in which children are looking to the target animal. Panel B shows the distribution of RT data and the estimate of group means for RT (orange points). Each grey point shows a single child's performance across connected by a grey line across the different cue types. The orange points represent the most likely estimate of the group means with the error bars showing the 95\% Highest Density Interval. Panel C shows the full posterior distribution of plausible RT differences across conditions. Color and linetype represent the comparison of interest and the vertical dashed line represents the null value of zero condition difference.}\label{fig:oc-plot-e1}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/oc-plot-e1-1} 
+
+}
+
+\caption{Reaction Time (RT) results for Experiment 1. Panel A shows the timecourse of children’s looking to the target animal after hearing a familiar animal name (black), onomatopoeic word (light grey), or animal vocalization (dark grey). Panel B shows the distribution of RT data across conditions. Each grey point shows a RT for a single trial. The black bar represent the most likely estimate of the condition means. The red lines connect the condition means to illustrate shifts in the RT distributions. Panel C shows the posterior distribution of credible RT differences across conditions. Color and linetype represent the contrast of interest and the red vertical dashed line represents the null value of zero condition difference. All error bars represent 95\% Highest Density Intervals.}\label{fig:oc-plot-e1}
 \end{figure}
 
 Children's reaction times showed a difference in speed of processing for
@@ -754,10 +773,10 @@ group comparisons (name vs.~onomatopeia: \(\beta_{diff}\) = 0.03, 95\%
 HDI from -0.07 to 0.11; name vs.~vocalization: \(\beta_{diff}\) = 0.01,
 95\% HDI from -0.05 to 0.08; onomatopeia vs.~vocalization:
 \(\beta_{diff}\) = -0.01, 95\% HDI from -0.09 to 0.07). These results
-provide strong evidence that the animal vocalizations were equally
-effective at directing overall looking behavior to identify familiar
-animals as their names or onomatopeic sounds if children have enough
-time to process the cue.
+provide evidence that the animal vocalizations were equally effective at
+directing overall looking behavior to identify familiar animals as their
+names or onomatopeic sounds if children have enough time to process the
+cue.
 
 \hypertarget{disambiguation-trials-using-novel-animal-names-and-animal-vocalization-to-disambiguate-novel-animals}{%
 \subsubsection{Disambiguation Trials: Using novel animal names and
@@ -783,8 +802,13 @@ animal vocalizations were equally effective at directing overall looking
 behavior to identify familiar animals as their names or onomatopeic
 sounds if children have enough time to process the cue.
 
-\begin{figure}[tb]
-\includegraphics[width=0.95\linewidth]{anime_manuscript_files/figure-latex/acc-plot-e1-1} \caption{Accuracy results for Experiment 1 for familiar (upper panels) and novel (lower panels) trials. Panel A shows the data distribution and model estimates for Accuracy of children's looking behavior. Panel B shows the full posterior distribution over model estimates of differences in accuracy across conditions. The vertical dashed line represents the null model of zero difference in Accuracy. All other plotting conventions are the same as in Figure 2.}\label{fig:acc-plot-e1}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/acc-plot-e1-1} 
+
+}
+
+\caption{Accuracy results for Experiment 1 for familiar (upper panels) and novel (lower panels) trials. Panel A shows the data distribution and model estimates for Accuracy of children's looking behavior. Panel B shows the full posterior distribution over model estimates of differences in accuracy across conditions. The vertical dashed line represents the null model of zero difference in Accuracy. All other plotting conventions are the same as in Figure 2.}\label{fig:acc-plot-e1}
 \end{figure}
 
 Therefore, children seem to have one-to-one biases for the vocalizations
@@ -796,7 +820,7 @@ reaction time for novel animal names or vocalizations.
 \hypertarget{experiment-2}{%
 \section{Experiment 2}\label{experiment-2}}
 
-An issue that has received much attention in recent years concerns the
+One issue that has received much attention in recent years concerns the
 relation between children's referent selection and retention abilities.
 While earlier studies tended to conflate disambiguation strategies and
 children's word learning, more recent studies suggest that these two
@@ -815,13 +839,12 @@ infants using looking time measures of performance.
 
 Experiment 2 asks whether children can retain the link created through
 disambiguation between a novel animal and a novel animal vocalization.
-In addition, we aim at replicating the findings from Experiment 1,
-showing that children can identify familiar animals based on the
-vocalizations they produce, and use novel vocalizations to disambiguate
-novel animals. Our prediction is that children will succeed in
-disambiguation trials, but will show marginal or no retention on
-subsequent disambiguation trials, paralleling the findings of earlier
-studies with linguistic stimuli.
+We also aim to replicate the findings from Experiment 1, showing that
+children can identify familiar animals based on the vocalizations they
+produce and use novel vocalizations to disambiguate novel animals. We
+predict that children will succeed in disambiguation trials, but will
+show little evidence of retention on subsequent disambiguation trials,
+paralleling the findings of earlier studies with linguistic stimuli.
 
 \hypertarget{method-1}{%
 \subsection{Method}\label{method-1}}
@@ -850,8 +873,13 @@ animals.
 The auditory stimuli consisted of the same familiar and novel animal
 vocalizations as in Experiment 1.
 
-\begin{figure}[tb]
-\includegraphics[width=0.95\linewidth]{anime_manuscript_files/figure-latex/stimuli-e2-1} \caption{Trial types in Experiments 4 organized by type of trial. Children hear familiar and novel vocalizations. The target animal for each trial type is on the left.}\label{fig:stimuli-e2}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/stimuli-e2-1} 
+
+}
+
+\caption{Trial types in Experiments 4 organized by type of trial. Children hear familiar and novel vocalizations. The target animal for each trial type is on the left.}\label{fig:stimuli-e2}
 \end{figure}
 
 \hypertarget{familiarization-books-1}{%
@@ -861,7 +889,7 @@ As in Experiment 1, we sent home a children's book to ensure that all
 participants had at least some exposure to the familiar animals and
 auditory cues. Since, in Experiment 2, we were interested in the natural
 animal vocalizations and not the names/lexical sounds, only the Hear and
-ThereTM Sounds on the Farm book was used. Instructions given to the
+There Sounds on the Farm book was used. Instructions given to the
 parents were the same as in Experiment 1, and the book was sent home a
 week before the visit.
 
@@ -886,7 +914,7 @@ vocalization:}\label{retention-of-the-link-between-a-novel-animal-and-a-novel-vo
 Figure 5A shows children's proportion looking to the target animal after
 hearing a familiar or a novel animal vocalization over the same analysis
 window used in Experiment 1 (300 to 2500 ms after the onset of the
-vocalization). Visual inspection of the figure suggest that children
+vocalization). Visual inspection of the figure suggests that children
 successfully oriented to the target image after hearing both familiar
 and novel animal vocalizations. The orange points show mean proportion
 target looking for familiar (\(M_{familiar}\) = 0.66, disambiguation
@@ -894,7 +922,7 @@ target looking for familiar (\(M_{familiar}\) = 0.66, disambiguation
 = 0.50).
 
 Children's looking to the target image was reliably different from
-random looking behavior for both familiar and disambiguation trials,
+random-looking behavior for both familiar and disambiguation trials,
 with the null value of 0.50 falling well outside of the range of
 plausible values. Moreover, the novel animal vocalizations and the
 familiar animal vocalizations were equally effective in guiding
@@ -911,8 +939,13 @@ accurate on retention trials compared to both disambiguation trials
 (\(\beta_{diff}\) = 0.14, 95\% HDI from 0.03 to 0.25) and familiar
 trials (\(\beta_{diff}\) = 0.16, 95\% HDI from 0.05 to 0.27).
 
-\begin{figure}[tb]
-\includegraphics[width=0.95\linewidth]{anime_manuscript_files/figure-latex/acc-plot-e2-1} \caption{Accuracy of responses to familiar and novel animal vocalizations in Experiment 2. Panel A shows the data distribution alongside the model estimates of mean Accuracy across the different trial types. Panel B shows the full posterior distribution over model estimates of differences in accuracy across trial types. The vertical dashed line represents the null model of zero difference. All other plotting conventions are the same as in Figures 1 and 2.}\label{fig:acc-plot-e2}
+\begin{figure}[t]
+
+{\centering \includegraphics[width=0.8\linewidth]{anime_manuscript_files/figure-latex/acc-plot-e2-1} 
+
+}
+
+\caption{Accuracy of responses to familiar and novel animal vocalizations in Experiment 2. Panel A shows the data distribution alongside the model estimates of mean Accuracy across the different trial types. Panel B shows the full posterior distribution over model estimates of differences in accuracy across trial types. The vertical dashed line represents the null model of zero difference. All other plotting conventions are the same as in Figures 1 and 2.}\label{fig:acc-plot-e2}
 \end{figure}
 
 Three findings emerged from the accuracy analysis: First, children
@@ -922,7 +955,7 @@ a novel animal vocalization. These two results are an internal
 replication of the key findings from Experiment 1 in a new sample. In
 addition, we found that children did not show evidence of retaining the
 link between a novel animal vocalization and a novel animal. These
-results and their implications will be discussed in more details in the
+results and their implications are discussed in more detail in the
 following section.
 
 \hypertarget{general-discussion}{%
@@ -931,9 +964,9 @@ following section.
 Three main findings emerged from this work. The first finding was that
 30-month-olds responded fastest to a familiar animal name and slowest to
 a familiar animal vocalization, with onomatopoeic sounds falling
-somewhere in between. Yet, children could identify the familiar animals
-after hearing any of on these three sound types. The second finding was
-that children showed disambiguation biases for the types of
+somewhere in between. Children could, however, identify the familiar
+animals after hearing any of on these three sound types. The second
+finding was that children showed disambiguation biases for the types of
 vocalizations that animals produce, similar to their biases in word
 learning. The third finding was that these biases do not necessarily
 lead to learning, as children were not successful in retaining the link
@@ -946,7 +979,7 @@ timescale.
 
 In our study, we found a processing speed advantage for words over other
 meaningful sounds. Some theories of language development argue that
-words are a unique stimuli because they refer to objects in the world
+words are unique stimuli because they refer to objects in the world
 (Waxman \& Gelman, 2009), while other theories argue that words are
 special because they activate conceptual information more quickly,
 accurately, and in a more categorical way than nonverbal sounds
@@ -959,10 +992,10 @@ more times than they have heard an actual cow mooing. Frequency effects
 have been robustly demonstrated in the processing of words, with adults
 being faster to recognize words that they hear more frequently (Dahan,
 Magnuson, \& Tanenhaus, 2001). A final explanation is that words are
-very effective at presenting a lot of information in a short period of
-time. When children see a simple visual world consisting of a dog and a
-sheep, the first phoneme of the target word is already sufficient to
-determine the animal that is likely to be talked about next.
+very effective at presenting a lot of information in a short period.
+When children see a simple visual world consisting of a dog and a sheep,
+the first phoneme of the target word is already sufficient to determine
+the animal that is likely to be talked about next.
 
 Much less is known about children's and adults' processing of
 onomatopoeic sounds. Hashimoto et al. (2006) compared brain responses to
@@ -974,7 +1007,7 @@ information about intermodal associations, bridging their understanding
 of non-arbitrary environmental sounds and arbitrary word-object
 associations. Fernald and Morikawa (1993) reported that 52\% of Japanese
 mothers used onomatopoeic sounds to label target objects, while only 1
-in 30 American mothers did so. While our results do not speak direclty
+in 30 American mothers did so. While our results do not speak directly
 to these theoretical issues, they do suggest that onomatopoeic sounds
 function like words in that they are capable of activating conceptual
 representations that drive children's visual attention to seek the
@@ -998,7 +1031,7 @@ to a stimulus that is non-linguistic and non-communicative.
 Previous studies contrasted lexical-specific and pragmatic accounts. For
 example, diesendruck2001children found that children expect speakers to
 use consistent facts to refer to objects, and they select a novel object
-when hearing a novel fact. Yet, recent studies suggest that different
+when hearing a novel fact. Recent studies suggest that different
 strategies might be used to make inferences about speakers'
 communicative intent and the meaning of a novel word. Autistic children
 who are known to have pragmatic deficits show disambiguation biases and
@@ -1015,7 +1048,7 @@ non-linguistic domains. moher2010one showed that three-year-olds link
 different voices to unique faces, showing that one-to-one biases might
 extend to other communicative domains. However, Yoshida, Rhemtulla, and
 Vouloumanos (2012) found that adults in a statistical learning task were
-less likely to show evidence of using dismabiutation biases to learn
+less likely to show evidence of using disambiguation biases to learn
 nonspeech sounds even though this behavior would have facilitated task
 performance. These results suggest that at some point in development
 disambiguation constraints may operate more strongly over speech
@@ -1041,23 +1074,23 @@ same biases could emerge if these models attempted to map animal
 vocalizations to animals and there were consistent co-occurrences
 present in the learning environment.
 
-One open question is whether the findings from our studies and from
-previous studies could be explained by a single disambiguation
-mechanism. We showed that children can disambiguate stimuli other than
-words and facts, suggesting at least the existence of a domain general
-mechanism that leads to disambiguation. A preference for parsimony
-provides some evidence in favor of a single mechanism. But as pointed
-out by recent computational work, it is possible that different
-mechanisms jointly contribute to disambiguation behavior, explaining
-findings across different populations and contexts (Lewis \& Frank,
-2013). Thus, it is possible that the same behavior - selecting a novel
-object when hearing a novel auditory stimulus - might result from
-different computational mechanisms or motivations depending on the task
-at hand, children's age, or the particular stimuli set and assumptions
-about the people involved in the interaction. That is, children could
-use a domain general mechanism to learn about novel animal
-vocalizations, and they could use a lexical and pragmatic constraint to
-learn about novel words.
+One open question is whether a single disambiguation mechanism can
+account for the diverse set of contexts in which children show
+disambiguation behaviors. Here, we found that children could
+disambiguate stimuli other than words and facts, suggesting at least the
+existence of a domain-general mechanism that leads to disambiguation. A
+preference for parsimony suggests that we should favor of a single
+mechanism. But as pointed out by recent computational work, it is
+possible that different mechanisms jointly contribute to disambiguation
+behavior, explaining findings across different populations and contexts
+(Lewis \& Frank, 2013). Thus, it is possible that the same behavior -
+selecting a novel object when hearing a novel auditory stimulus - might
+result from different computational mechanisms or motivations depending
+on the task at hand, children's age, or the particular stimuli set and
+assumptions about the people involved in the interaction. That is,
+children could use a domain-general mechanism to learn about novel
+animal vocalizations, and they could use a lexical and pragmatic
+constraint to learn about novel words.
 
 Our third finding was that one-to-one biases for animal vocalizations do
 not necessarily lead to retention of the link between a novel animal and
@@ -1068,7 +1101,7 @@ word-object labels over time (McMurray et al., 2012). McMurray and
 colleagues propose that referent-selection requires that children give
 their best guess about a new word's meaning in a specific ambiguous
 situation, but that learning operates over a much longer timescale,
-requiring mutliple exposures to build up stable word-object links.
+requiring multiple exposures to build up stable word-object links.
 Although disambiguation can be viewed as the product of learning that
 has occurred up to that point, for younger children it does not
 necessarily result in learning. These claims are also supported by
@@ -1100,36 +1133,35 @@ Finally, our results emphasize that children's learning about objects in
 their environment involves more than learning their names. Before object
 names are learned, sounds and actions might form the basis on which
 objects are conceptualized. For example, children might see barking as a
-defining feature of dogs, and may say bow-wow in response to the picture
+defining feature of dogs and may say bow-wow in response to the picture
 of a dog, even before they learn the animal name (Nelson, 1974).
-Learning the meaning of an object therefore requires learning several
+Learning the meaning of an object, therefore, requires learning several
 cross-modal associations, including learning the object's texture,
 smell, as well as its sounds and names. Children do not have explicit
 constraints that freshly baked cookies should have only one smell. Yet,
 they might recognize and get excited about the familiar smell coming
-from the kitchen, and might assume their mothers are baking something
-new when smelling something unfamiliar.
+from the kitchen and might assume their mothers are baking something new
+when smelling something unfamiliar.
 
 \hypertarget{conclusions}{%
 \subsection{Conclusions}\label{conclusions}}
 
-Children use different types of knowledge in order to make sense of a
-constantly changing world. They might identify animal vocalizations
-based on the shape of the vocal tract of the animal, its location and
-size, and their previous knowledge about animal vocalizations.
-Importantly, these cues normally converge in helping children identify
-an animal in the environment. The same is true for their identification
-of referents for words. Children can identify the referent for a word
-based on semantics (Goodman, McDonough, \& Brown, 1998),
-cross-situational statistics (Smith \& Yu, 2008), syntax (Brown, 1957),
-and pragmatic and social cues (Baldwin, 1993), and disambiguation biases
-{[}markman1991whole{]}. As children grow older, these different sources
-of information provide converging evidence that a novel word should
-refer to a novel object. Children can rely on their knowledge about the
-world, speakers, and on their previous experiences with words in order
-to figure out what speakers are talking about -- a task we continue to
-do throughout our lives when learning knew words and interpreting
-complex sentences.
+Children use different types of knowledge to make sense of a constantly
+changing world. They might identify animal vocalizations based on the
+shape of the vocal tract of the animal, its location and size, and their
+previous knowledge about animal vocalizations. Importantly, these cues
+normally converge in helping children identify an animal in the
+environment. The same is true for their identification of referents for
+words. Children can identify the referent for a word based on semantics
+(Goodman, McDonough, \& Brown, 1998), cross-situational statistics
+(Smith \& Yu, 2008), syntax (Brown, 1957), and pragmatic and social cues
+(Baldwin, 1993), and disambiguation biases {[}markman1991whole{]}. As
+children grow older, these different sources of information provide
+converging evidence that a novel word should refer to a novel object.
+Children can rely on their knowledge about the world, speakers, and on
+their previous experiences with words to figure out what speakers are
+talking about -- a task we continue to do throughout our lives when
+learning new words and interpreting complex sentences.
 
 \newpage
 
@@ -1420,6 +1452,9 @@ Cooper (Eds.)}, 1197--1202.
 
 
 
+\clearpage
+\renewcommand{\listfigurename}{Figure captions}
+\listoffigures
 
 
 
