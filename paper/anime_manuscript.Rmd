@@ -1,5 +1,5 @@
 ---
-title             : "Moos as cues: One-to-one biases in a non-linguistic and non-communicative domain"
+title             : "Moos as cues: One-to-one mappings in a non-linguistic and non-communicative domain"
 shorttitle        : "Moos as cues"
 
 author: 
@@ -21,7 +21,7 @@ author_note: |
   
 
 abstract: |
-  When hearing a novel name, children tend to select a novel object rather than a familiar one, a bias known as disambiguation. This bias is often assumed to reflect children’s expectations about the nature of words or expectations about the communicative intention of speakers. This work investigated whether similar biases emerge in a domain that is non-linguistic and non-communicative for children, but in which strong regularities can be found: the vocalizations that animals produce. Using online processing measures, we first show that two-year-olds can identify familiar animals based on their vocalizations, though not as fast as they are to identify these same animals when hearing their names. We then show that children look at an unfamiliar animal when hearing a novel animal vocalization or novel animal name, being equally fast in both conditions. In a follow-up experiment, we replicate the key finding that children look at a novel animal when hearing a novel animal vocalization, but show that these biases do not necessarily lead to learning. We characterize disambiguation biases as resulting from domain-general processing mechanisms, rather than from lexical or communicative constraints.
+  When hearing a novel name, children tend to select a novel object rather than a familiar one. This behavior is often assumed to reflect children’s expectations about the nature of words or expectations about speakers' communicative intent. This work investigated whether similar patterns of behavior emerge in a domain that is non-linguistic and non-communicative for children, but in which strong regularities can be found: the vocalizations that animals produce. Using real-time processing measures, we first show that two-year-olds can identify familiar animals based on their vocalizations, though not as fast as they are to identify these same animals when hearing their names. We then show that children tend to look at an unfamiliar animal when hearing a novel animal vocalization or novel animal name, responding with similar speed in both contexts. In a follow-up experiment, we replicate the key finding that children look at a novel animal when hearing a novel animal vocalization, but show that this behavior do not necessarily lead to learning. These results are consistent with a subset of mutual exclusivity behaviors resulting from domain-general processing mechanisms.
   
 keywords          : "disambiguation, mutual exclusivity, environmental sounds, retention, word learning"
 wordcount         : "7923"

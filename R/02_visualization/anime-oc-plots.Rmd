@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = T, message = F, warning = F)
 
 ```{r libraries, include=FALSE}
 library(magrittr); library(stringr); library(cowplot); library(here); 
-library(forcats)
+library(forcats); library(rogme); library(ggridges)
 library(tidyverse)
 theme_set(ggthemes::theme_few())
 ```
@@ -20,14 +20,15 @@ theme_set(ggthemes::theme_few())
 ```{r}
 d <- read_csv(here("data/03_summary_tables", "anime_gvals_oc_plot.csv"))
 d_trial_level <- read_csv(here("data/03_summary_tables", "anime_trial_level.csv"))
-d_model <- read_rds(here("data/03_summary_tables", "anime-posterior-samples.rds"))
+d_models <- read_rds(here("data/03_summary_tables", "anime-posterior-samples.rds"))
 ```
 
 ```{r}
 analysis.window.lower <- 0
 analysis.window.upper <- 1100
 
-d %<>% filter(Time.ms >= analysis.window.lower, Time.ms <= analysis.window.upper)
+d %<>% filter(Time.ms >= analysis.window.lower, 
+              Time.ms <= analysis.window.upper)
 ```
 
 ## Experiment 1
@@ -52,7 +53,7 @@ e1_oc_plot <- d_plot %>%
                  size = 0.8, alpha = 0.8) +
   geom_line(size = 1.5) +
   ylim(0, 0.9) +
-  xlim(analysis.window.lower, analysis.window.upper + 300) +
+  xlim(analysis.window.lower, analysis.window.upper + 450) +
   annotate("text", x = 150, y = 0.75, label = "DOG") +
   annotate("text", x = 150, y = 0.65, label = "WOOF", color = "grey") +
   annotate("text", x = 150, y = 0.55, label = "[barking]", color = "darkgrey") +
@@ -105,138 +106,92 @@ d_ss <- d_trial_level %>%
   filter(experiment == "e1",
          Response == "D", 
          trial_type == "familiar",
-         RT >= 300, RT <= 1800,
+         RT >= 0, RT <= 2500,
          GoodRT == T,
          GoodFirstGap == T,
          GoodLongestGap == T) %>% 
   group_by(Sub.Num, cue_type) %>% 
-  summarise(m = mean(RT, na.rm = T))
-
-
-d_trials <- d_trial_level %>% 
-  filter(experiment == "e1",
-         Response == "D", 
-         trial_type == "familiar",
-         RT >= 300, RT <= 1800,
-         GoodRT == T,
-         GoodFirstGap == T,
-         GoodLongestGap == T)
+  summarise(m_rt = median(RT, na.rm = T))
 ```
 
 Robust plots for group differences.
 
 ```{r}
-## global plot variables
-dec_width = 0.5
-dec_size = 1.5
-connector_size = dec_size - 0.9
-connector_length <- 2.1
-q_seq <- c(0.5)
-
-p <- d_trial_level %>% 
-  filter(experiment == "e1",
-         Response == "D", 
-         trial_type == "familiar",
-         RT >= 200, RT <= 1800,
-         GoodRT == T,
-         GoodFirstGap == T,
-         GoodLongestGap == T) %>% 
-  ggplot(aes(x = cue_type, y = RT)) +
+p <- d_ss %>% 
+  ggplot(aes(x = cue_type, y = m_rt)) +
   ggbeeswarm::geom_quasirandom(shape = 21, width = 0.15, color = "black", 
                                fill = "darkgrey",
-                               alpha = 0.5) + 
-  labs(y = "RT (sec)", x = NULL) +
-  lims(y = c(0, 2000)) 
+                               alpha = 0.3,
+                               size = 3) + 
+  labs(y = "RT (ms)", x = NULL) +
+  lims(y = c(0, 1800)) +
+  coord_flip()
 
 # get model values
 d_model_vals <- d_models$rt_e1 %>% 
   dplyr::rename(RT = rt_scale_param) %>% 
-  mutate(cue_type = ifelse(cue_type == "onomatopoeia", "onomatopoeic", cue_type))
+  mutate(cue_type = ifelse(cue_type == "onomatopoeia", 
+                           "onomatopoeic", 
+                           cue_type))
 
 # get quantile vals
 d_quantiles <- d_model_vals %>% 
   group_by(cue_type) %>% 
-  summarise(val = hd(RT))
+  summarise(ci_lower = hd(RT, q = 0.025),
+            ci_upper = hd(RT, q = 0.975),
+            m_rt = hd(RT, q = 0.5))
 
-for (qi in 1:length(q_seq)) {
-  p <- p + stat_summary(data = d_model_vals,
-                        geom = "errorbar", 
-                        fun.y = hd, fun.ymin = hd, fun.ymax = hd,
-                        width = dec_width,
-                        size = dec_size,
-                        color = "black",
-                        fun.args = list(q = q_seq[[qi]]))
-}
-
-p <- p + annotate("segment", 
-             x = 1 + dec_width/2, xend = 2 - dec_width/2, 
-             y = d_quantiles$val[1], yend = d_quantiles$val[2], 
-             color = "red", 
-             size = connector_size,
-             alpha = 1) +
-   annotate("segment", 
-             x = 2 + dec_width/2, xend = 3 - dec_width/2, 
-             y = d_quantiles$val[2], yend = d_quantiles$val[3], 
-             color = "red", 
-             size = connector_size,
-             alpha = 1)
+p <- p + 
+  geom_pointrange(aes(ymax = ci_upper, ymin = ci_lower), 
+                  data = d_quantiles,
+                  color = "grey20",
+                  shape = 15,
+                  size = 0.7)
+p
 ```
 
-This is the old violin plot in case we want to go back to it. 
-
-```{r, eval = F, include = F}
-group_means_plot <- d_ss %>% 
-  mutate(cue_type = recode(cue_type, onomatopoeic = "onomatopoeia")) %>% 
-  ggplot(aes(x = cue_type, y = m)) +
-  geom_violin(trim = F, width = 0.8, size = 1, draw_quantiles = c(0.5),
-              color = "grey50", fill = "grey90") + 
-  geom_jitter(color = "black", fill = "darkgrey", shape = 21, width = .03, size = 1.5,
-              alpha = 0.5) +
-  #geom_linerange(data = e1_model_summary, aes(ymin = hdi_lower, ymax = hdi_upper), 
-   #               color = "darkred", fill = "red", size = 1) +  
-  labs(x = "Cue Type", y = "RT (msec)") +
-  scale_x_discrete(expand = c(0,0.8)) +
-  lims(y = c(0, 2200)) 
-```
+Make the group differences plot.
 
 ```{r}
 group_diff_plot <- e1_rt_hyp_d %>% 
   mutate(param_est = param_est * -1, 
-         ind_contrast = recode(ind_contrast, 
+         ind_contrast = dplyr::recode(ind_contrast, 
                                name_onomatopoeic_diff = "name_onomatopeia",
                                name_vocalization_diff = "name_vocalization",
                                onomatopeic_vocalization_diff = "onomatopeia_vocalization"),
          ind_contrast_fact = factor(ind_contrast)) %>% 
-  ggplot(aes(x = param_est, color = ind_contrast_fact, linetype = ind_contrast_fact)) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "red", size = 1) +
-  geom_line(stat = "density", size = 1) +
-  scale_color_grey() +
-  labs(x = "Difference in RT (msec)", y = "Density",
-       color = "Contrast:",
-       linetype = "Contrast:") +
-  lims(x = c(-200,900)) + 
-  theme(legend.position=c(.75, .7),
-        legend.background = element_rect(fill = "transparent", colour = "transparent"),
-        legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        legend.title = element_text(size=10),
-        legend.text = element_text(size=8))
+  ggplot(aes(x = param_est, y = fct_reorder(ind_contrast, param_est), 
+             fill = ind_contrast_fact)) + 
+  geom_density_ridges(scale = 1.5, alpha = 0.8, rel_min_height = 0.005) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "black", size = 1) +
+  guides(fill = F) +
+  scale_y_discrete(expand = c(0.05, 0)) +
+
+  labs(x = "Difference in RT (msec)", y = NULL, color = "") +
+  scale_fill_grey()
 ```
 
 ## Construct the final plot
 
 ```{r}
-model_plots <- plot_grid(p, group_diff_plot, labels = c("b", "c"),
-                         rel_widths = c(1.1, 1))
+model_plots <- plot_grid(p, group_diff_plot, 
+                         ncol = 1,
+                         labels = c("b", "c"))
 
 oc_plot <- plot_grid(e1_oc_plot, labels = "a")
 
-final_plot <- plot_grid(oc_plot, model_plots, nrow = 2, 
-                        rel_heights = c(1.2,1))
+final_plot <- plot_grid(oc_plot, model_plots, 
+                        ncol = 2,
+                        rel_widths = c(1.3, 0.8),
+                        scale = c(0.9, 0.85))
 # print the plot
 final_plot
 ```
 
 ```{r}
-ggsave(final_plot, filename = here("paper/figs", "oc_e1_new.png"), 
-       width = 8.3, height = 5)
+save_plot(final_plot, 
+       filename = here("paper/figs", "oc_e1_new.png"), 
+       ncol = 2.5,
+       nrow = 1.2,
+       base_aspect_ratio = 1)
 ```

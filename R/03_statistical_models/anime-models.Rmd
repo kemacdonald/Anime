@@ -33,7 +33,7 @@ We also log transform Reaction Times (RT) to be more suitable for modeling on a 
 d_e1_rt <- d %>% filter(experiment == "e1",
                               Response == "D", 
                               trial_type == "familiar",
-                              RT >= 300, RT <= 2500,
+                              RT >= 0, RT <= 2500,
                               GoodRT == T,
                               GoodFirstGap == T,
                               GoodLongestGap == T) %>% 
@@ -44,12 +44,12 @@ Fit the varying intercepts and slopes model.
 
 ```{r}
 m_bglmer <- stan_glmer(
-  log_rt ~ cue_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
-  family = gaussian(), # specify type of model
+  log_rt ~ cue_type + (clean_target_img | Sub.Num), 
+  family = gaussian(), 
   data = d_e1_rt,
-  prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
+  prior = normal(0, 2), # prior on model coefs 
   prior_intercept = normal(0, 5), # prior on intercept after centering predictors
-  prior_covariance = decov(regularization = 2), # prior on Covariance matrices for mixed effects model
+  prior_covariance = decov(regularization = 2), # prior on mixed effects
   chains = 4
 )
 ```
@@ -61,8 +61,7 @@ Extract the samples from the model obect.
 ```{r}
 # Get a dataframe: One row per posterior sample
 d_post_rt_e1 <- m_bglmer %>% 
-  as.data.frame() %>% 
-  as_tibble() %>% 
+  as.data.frame() %>% as_tibble() %>% 
   dplyr::rename(name = `(Intercept)`) %>% 
   select(name, cue_typeonomatopoeic, cue_typevocalization) %>% 
   mutate(cue_typeonomatopoeic = name + cue_typeonomatopoeic,
@@ -91,12 +90,12 @@ Fit accuracy model to compare proportion looking for familiar cues.
 
 ```{r}
 m_acc_e1 <- stan_glmer(
-  emp_logit_acc ~ cue_type + trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
-  family = gaussian(), # specify type of model
+  emp_logit_acc ~ cue_type + trial_type + (clean_target_img | Sub.Num),
+  family = gaussian(),
   data = d_e1_acc_fam,
-  prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
+  prior = normal(0, 2), # prior on model coefs 
   prior_intercept = normal(0, 5), # prior on intercept after centering predictors
-  prior_covariance = decov(regularization = 2), # prior on Covariance matrices for mixed effects model
+  prior_covariance = decov(regularization = 2), # prior on mixed effects model
   chains = 4
 )
 ```
@@ -115,8 +114,7 @@ logit_to_prob <- function(logit) {
 
 ```{r}
 d_post_acc_e1 <- m_acc_e1 %>% 
-  as.data.frame() %>% 
-  as_tibble() %>% 
+  as.data.frame() %>% as_tibble() %>% 
   rename(intercept = `(Intercept)`) %>% 
   select(intercept, cue_typeonomatopoeic, cue_typevocalization, trial_typefamiliar) %>% 
   mutate(cue_typeonomatopoeic_familiar = intercept + cue_typeonomatopoeic + trial_typefamiliar,
@@ -143,7 +141,7 @@ d_post_acc_e1 <- m_acc_e1 %>%
 ```{r}
 d_e2_rt <- d %>% filter(experiment == "e2",
                               Response == "D", 
-                              RT >= 300, RT <= 2500,
+                              RT >= 0, RT <= 2500,
                               GoodRT == T,
                               GoodFirstGap == T,
                               GoodLongestGap == T) %>% 
@@ -154,12 +152,12 @@ Fit the varying intercepts and slopes model.
 
 ```{r}
 m_rt_e2 <- stan_glmer(
-  log_rt ~ trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
-  family = gaussian(), # specify type of model
+  log_rt ~ trial_type + (clean_target_img | Sub.Num), 
+  family = gaussian(), 
   data = d_e2_rt,
-  prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
+  prior = normal(0, 2), # prior on model coefs 
   prior_intercept = normal(0, 5), # prior on intercept after centering predictors
-  prior_covariance = decov(regularization = 2), # prior on Covariance matrices for mixed effects model
+  prior_covariance = decov(regularization = 2), # prior on mixed effects
   chains = 4
 )
 ```
@@ -169,8 +167,7 @@ Extract the samples from the model obect.
 ```{r}
 # Get a dataframe: One row per posterior sample
 d_post_rt_e2 <- m_rt_e2 %>% 
-  as.data.frame() %>% 
-  as_tibble() %>% 
+  as.data.frame() %>% as_tibble() %>% 
   rename(intercept = `(Intercept)`) %>% 
   select(intercept, trial_typefamiliar, trial_typeretention) %>% 
   mutate(trial_typefamiliar = intercept + trial_typefamiliar,
@@ -195,12 +192,12 @@ Fit accuracy model to compare proportion looking for familiar cues.
 
 ```{r}
 m_acc_e2 <- stan_glmer(
-  emp_logit_acc ~ trial_type + (clean_target_img | Sub.Num), # specify model formula the same way as in glmer 
-  family = gaussian(), # specify type of model
+  emp_logit_acc ~ trial_type + (clean_target_img | Sub.Num),
+  family = gaussian(), 
   data = d_e2_acc_fam,
-  prior = normal(0, 2), # prior on model coefs (Does not include coefficients that vary by group in a multilevel model)
+  prior = normal(0, 2), # prior on model betas 
   prior_intercept = normal(0, 5), # prior on intercept after centering predictors
-  prior_covariance = decov(regularization = 2), # prior on Covariance matrices for mixed effects model
+  prior_covariance = decov(regularization = 2), # prior on mixed effects
   chains = 4
 )
 ```
@@ -209,8 +206,7 @@ Get a dataframe: One row per posterior sample
 
 ```{r}
 d_post_acc_e2 <- m_acc_e2 %>% 
-  as.data.frame() %>% 
-  as_tibble() %>% 
+  as.data.frame() %>% as_tibble() %>% 
   rename(intercept = `(Intercept)`) %>% 
   select(intercept, trial_typefamiliar, trial_typeretention) %>% 
   mutate(trial_typefamiliar = intercept + trial_typefamiliar,
