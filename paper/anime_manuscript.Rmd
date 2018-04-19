@@ -37,7 +37,7 @@ lineno            : yes
 lang              : "english"
 class             : "man"
 output            : 
-  - papaja::apa6_pdf
+  #- papaja::apa6_pdf
   - papaja::apa6_word
 ---
 
