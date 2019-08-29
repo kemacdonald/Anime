@@ -1,3 +1,0 @@
-"Condition"	"facet"	"mean"	"se"
-"name"	"Novel"	0.637077542390344	0.041689624732406
-"vocalization"	"Novel"	0.609862661193189	0.0306917813046258
