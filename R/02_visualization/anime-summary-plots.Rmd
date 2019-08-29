@@ -25,6 +25,14 @@ d_models <- readRDS(here("data/03_summary_tables", "anime-posterior-samples.rds"
 d_trial_level <- read_csv(here("data/03_summary_tables", "anime_trial_level.csv"))
 ```
 
+```{r}
+dog <- image_read(here("animal_images/dog.png"))
+sheep <- image_read(here("animal_images/sheep.png"))
+capybara <- image_read(here("animal_images/capybara.png"))
+pangolin <- image_read(here("animal_images/pangolin.png"))
+anteater <- image_read(here("animal_images/anteater.png"))
+```
+
 ## Experiment 1
 
 ```{r}
@@ -52,13 +60,13 @@ p <- d %>%
   mutate(trial_type = fct_relevel(trial_type, "disambiguation", after = 1), 
          trial_type = recode(trial_type, disambiguation = "novel")) %>% 
   ggplot(aes(x = cue_type, y = ss_prop_looking)) +
-  ggbeeswarm::geom_quasirandom(shape = 21, width = 0.15, color = "black", 
+  ggbeeswarm::geom_quasirandom(shape = 21, width = 0.2, color = "black", 
                                fill = "darkgrey",
-                               alpha = 0.3,
+                               alpha = 0.5,
                                size = 3) + 
   geom_hline(yintercept = 0.5, linetype = "dashed") +
-  facet_wrap(~trial_type, scales = "free_x", ncol = 1) +
-  labs(x = "Cue Type", y = "Prop. Target Looking") +
+  facet_wrap(~trial_type, scales = "free_x", ncol = 2) +
+  labs(x = "Cue Type", y = "Proportion Looking \n to Target") +
   lims(y = c(0, 1)) 
 
 # get model values
@@ -79,8 +87,17 @@ p <- p +
                   data = d_quantiles,
                   color = "grey20",
                   shape = 15,
-                  size = 0.7)
-p
+                  size = 0.7)+ 
+  theme(axis.title.y = element_text(angle = 0, vjust = 0.5),
+        strip.text = element_text(face="bold"))
+
+img_dim <- 0.1
+
+p <- ggdraw(p) + 
+  draw_image(dog, x = 0.17, y = 0.82, width = img_dim, height = img_dim) +
+  draw_image(sheep, x = 0.17, y = 0.1, width = img_dim, height = img_dim) +
+  draw_image(capybara, x = 0.58, y = 0.82, width = img_dim, height = img_dim) +
+  draw_image(dog, x = 0.59, y = 0.1, width = img_dim, height = img_dim)
 ```
 
 Clean up the posterior samples to make the plot.
@@ -104,9 +121,9 @@ Make the group differences plot.
 e1_acc_group_diff_plot <- e1_acc_hyp_d %>% 
   mutate(param_est = param_est * -1, 
          ind_contrast = recode(ind_contrast, 
-                               name_onomatopoeic_diff = "name_onomatopeia",
-                               name_vocalization_diff = "name_vocalization",
-                               onomatopeic_vocalization_diff = "onomatopeia_vocalization"),
+                               name_onomatopoeic_diff = "name vs. onomatopeia",
+                               name_vocalization_diff = "name vs. vocalization",
+                               onomatopeic_vocalization_diff = "onomatopeia vs. vocalization"),
          ind_contrast_fact = factor(ind_contrast)) %>% 
   ggplot(aes(x = param_est, y = fct_reorder(ind_contrast, param_est), 
              fill = ind_contrast_fact)) + 
@@ -118,7 +135,8 @@ e1_acc_group_diff_plot <- e1_acc_hyp_d %>%
   lims(x = c(-0.15, 0.2)) + 
   labs(x = "Difference in Accuracy", 
        y = NULL) +
-  facet_wrap(~trial_type, scales = "free_y", ncol = 1) 
+  facet_wrap(~trial_type, scales = "free_y", ncol = 1) +
+  theme(strip.text = element_text(face="bold"))
 
 e1_acc_group_diff_plot
 ```
@@ -127,18 +145,30 @@ Build the final plot
 
 ```{r}
 e1_acc_final_plot <- plot_grid(p, e1_acc_group_diff_plot, 
-                               scale = c(0.95, 0.85),
+                               scale = c(0.9, 0.9),
                                rel_widths = c(1, 1.2), 
                                labels = c("a", "b"))
 e1_acc_final_plot
 ```
 
+
+
 ```{r}
+include_model_plots <- FALSE
+
+if(include_model_plots) {
 save_plot(e1_acc_final_plot, 
           filename = here("paper/figs", "prop_look_e1_new.png"), 
           ncol = 2.2,
           nrow = 1.4,
+          base_aspect_ratio = 1)  
+} else {
+  save_plot(p, 
+          filename = here("paper/figs", "prop_look_e1_new.png"), 
+          ncol = 2.8,
+          nrow = 1.6,
           base_aspect_ratio = 1)
+}
 ```
 
 ## Experiment 2
@@ -163,10 +193,10 @@ p_e2 <- d %>%
   ggplot(aes(x = trial_type, y = ss_prop_looking)) +
   ggbeeswarm::geom_quasirandom(shape = 21, width = 0.15, color = "black", 
                                fill = "darkgrey",
-                               alpha = 0.3,
+                               alpha = 0.5,
                                size = 3) + 
   geom_hline(yintercept = 0.5, linetype = "dashed") +
-  labs(x = "Trial Type", y = "Prop. Target Looking") +
+  labs(x = "Trial Type", y = "Proportion Looking \n to Target") +
   lims(y = c(0, 1)) 
 
 # get model values
@@ -185,9 +215,19 @@ p_e2 <- p_e2 +
                   data = d_quantiles,
                   color = "grey20",
                   shape = 15,
-                  size = 0.7)
+                  size = 0.7) +
+  theme(axis.title.y = element_text(angle = 0, vjust = 0.5),
+        strip.text = element_text(face="bold"),
+        axis.text.x = element_text(margin = margin(t = 0, r = 0, b = 10, l = 0)))
+        
 
-p_e2
+p_e2 <- ggdraw(p_e2) + 
+  draw_image(dog, x = 0.25, y = 0.85, width = img_dim, height = img_dim) +
+  draw_image(sheep, x = 0.25, y = 0.1, width = img_dim, height = img_dim) +
+  draw_image(capybara, x = 0.52, y = 0.85, width = img_dim, height = img_dim) +
+  draw_image(dog, x = 0.52, y = 0.1, width = img_dim, height = img_dim) +
+  draw_image(capybara, x = 0.87, y = 0.85, width = img_dim, height = img_dim) +
+  draw_image(anteater, x = 0.87, y = 0.1, width = img_dim, height = img_dim) 
 ```
 
 Clean up the posterior samples to make the plot.
@@ -229,13 +269,22 @@ e2_acc_final_plot <- plot_grid(p_e2, e2_acc_group_diff_plot,
                                rel_widths = c(1, 1.2), 
                                scale = c(0.95, 0.9),
                                labels = c("a", "b"))
-e2_acc_final_plot
 ```
 
 ```{r}
+include_model_plots_e2 <- FALSE
+
+if (include_model_plots_e2) {
 save_plot(e2_acc_final_plot, 
           filename = here("paper/figs", "prop_look_e2_new.png"),
           ncol = 2.2,
           nrow = 1,
-          base_aspect_ratio = 1)
+          base_aspect_ratio = 1)  
+} else {
+  save_plot(p_e2, 
+          filename = here("paper/figs", "prop_look_e2_new.png"),
+          ncol = 3.2,
+          nrow = 1.8,
+          base_aspect_ratio = 1)  
+}
 ```

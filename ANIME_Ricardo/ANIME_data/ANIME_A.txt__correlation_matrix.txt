@@ -1,0 +1,54 @@
+$estimate
+                                 VOCAB       VOCPER     ANIMALS       SOUND name_Familiar name_Novel
+VOCAB                               NA           NA          NA          NA            NA         NA
+VOCPER                      0.87560109           NA          NA          NA            NA         NA
+ANIMALS                     0.86139356  0.709111143          NA          NA            NA         NA
+SOUND                       0.64724635  0.509896108  0.74265443          NA            NA         NA
+name_Familiar              -0.32332226 -0.263531707 -0.33317568 -0.23336219            NA         NA
+name_Novel                  0.04352169  0.157944949 -0.01256117 -0.21622927     0.4929312         NA
+onomatopoeic word_Familiar -0.30097190 -0.122770325 -0.19204016 -0.20938002     0.5363916  0.5095779
+vocalization_Familiar      -0.20092824 -0.257325688 -0.04729188 -0.20135515     0.1891187  0.1683556
+vocalization_Novel          0.09323089 -0.009984032  0.31863622  0.08546641     0.1934436 -0.1947898
+                           onomatopoeic word_Familiar vocalization_Familiar vocalization_Novel
+VOCAB                                              NA                    NA                 NA
+VOCPER                                             NA                    NA                 NA
+ANIMALS                                            NA                    NA                 NA
+SOUND                                              NA                    NA                 NA
+name_Familiar                                      NA                    NA                 NA
+name_Novel                                         NA                    NA                 NA
+onomatopoeic word_Familiar                         NA                    NA                 NA
+vocalization_Familiar                      0.25559292                    NA                 NA
+vocalization_Novel                        -0.06389889              0.469122                 NA
+
+$p.value
+                                    VOCAB      VOCPER      ANIMALS     SOUND name_Familiar
+VOCAB                                  NA          NA           NA        NA            NA
+VOCPER                     0.000004135643          NA           NA        NA            NA
+ANIMALS                    0.000008914715 0.001435699           NA        NA            NA
+SOUND                      0.004974650415 0.036528552 0.0006381246        NA            NA
+name_Familiar              0.205553666945 0.306772488 0.1912805434 0.3673625            NA
+name_Novel                 0.868272006349 0.544886496 0.9618377090 0.4045309    0.04438292
+onomatopoeic word_Familiar 0.240441124903 0.638768804 0.4602677567 0.4199325    0.02643665
+vocalization_Familiar      0.439355127428 0.318720706 0.8569665830 0.4383631    0.46724876
+vocalization_Novel         0.721917216315 0.969663535 0.2125783101 0.7443161    0.45693290
+                           name_Novel onomatopoeic word_Familiar vocalization_Familiar
+VOCAB                              NA                         NA                    NA
+VOCPER                             NA                         NA                    NA
+ANIMALS                            NA                         NA                    NA
+SOUND                              NA                         NA                    NA
+name_Familiar                      NA                         NA                    NA
+name_Novel                         NA                         NA                    NA
+onomatopoeic word_Familiar 0.03666537                         NA                    NA
+vocalization_Familiar      0.51833718                  0.3221048                    NA
+vocalization_Novel         0.45374557                  0.8075079            0.05747475
+                           vocalization_Novel
+VOCAB                                      NA
+VOCPER                                     NA
+ANIMALS                                    NA
+SOUND                                      NA
+name_Familiar                              NA
+name_Novel                                 NA
+onomatopoeic word_Familiar                 NA
+vocalization_Familiar                      NA
+vocalization_Novel                         NA
+
